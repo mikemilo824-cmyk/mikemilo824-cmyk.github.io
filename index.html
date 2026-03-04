@@ -1,0 +1,797 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#121826">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Auction Max-Bid Calculator (Lot Builder)</title>
+  <style>
+    :root { --gap: 10px; --radius: 14px; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:#0b0d12; color:#eef2ff; }
+    .wrap { max-width: 1050px; margin: 0 auto; padding: 18px; }
+    h1 { margin: 0 0 12px; font-size: 20px; letter-spacing: .2px; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: var(--gap); }
+    @media (min-width: 1050px){ .grid{ grid-template-columns: 1fr 1fr; } }
+    .card { background:#121826; border: 1px solid #22304a; border-radius: var(--radius); padding: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+    .card h2 { margin: 0 0 10px; font-size: 14px; opacity: .9; }
+    .row { display:grid; grid-template-columns: 1.3fr 1fr; gap: 10px; align-items: center; margin: 8px 0; }
+    label { font-size: 13px; opacity: .9; }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid #2b3a59;
+      background: #0e1422;
+      color: #eef2ff;
+      font-size: 15px;
+      outline: none;
+    }
+    input:focus, select:focus, textarea:focus { border-color:#5b7cfa; box-shadow: 0 0 0 3px rgba(91,124,250,.15); }
+    .tabs { display:flex; gap:10px; margin: 8px 0 14px; }
+    .tab {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid #2b3a59;
+      background:#0e1422;
+      color:#eef2ff;
+      font-size: 13px;
+      cursor: pointer;
+      user-select:none;
+      text-align:center;
+    }
+    .tab.active { background:#1a2a55; border-color:#5b7cfa; }
+    .out { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+           background:#0a1020; border:1px solid #2b3a59; border-radius: 12px; padding: 12px; line-height: 1.45; white-space: pre-wrap; }
+    .small { font-size: 12px; opacity:.85; }
+    .btnrow { display:flex; gap:10px; margin-top: 12px; flex-wrap: wrap; }
+    button {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid #2b3a59;
+      background:#0e1422;
+      color:#eef2ff;
+      font-size: 14px;
+      cursor:pointer;
+      min-width: 140px;
+    }
+    button:hover { border-color:#5b7cfa; }
+    .pillrow { display:flex; gap:8px; margin-top: 10px; flex-wrap: wrap; }
+    .pill {
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid #2b3a59;
+      background:#0e1422;
+      font-size: 12px;
+      cursor:pointer;
+      user-select:none;
+    }
+    .pill:hover { border-color:#5b7cfa; }
+    .divider { border:0; border-top:1px solid #22304a; margin: 12px 0; opacity:.7 }
+    .table {
+      width:100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 10px;
+      overflow:hidden;
+      border-radius: 12px;
+      border: 1px solid #22304a;
+    }
+    .table th, .table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #22304a;
+      vertical-align: top;
+    }
+    .table th { text-align:left; opacity:.9; background:#0e1422; }
+    .muted { opacity:.8; }
+    .right { text-align:right; }
+    .nowrap { white-space: nowrap; }
+    .danger { color:#ff7b7b; }
+    .good { color:#8ef0b0; }
+    .warn { color:#ffd36a; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Auction Max-Bid Calculator (Lot Builder: stack items → total melt → max hammer)</h1>
+
+  <div class="tabs">
+    <div id="tabMelt" class="tab active">Lot / Melt-First</div>
+    <div id="tabResale" class="tab">Resale / Profit (single item)</div>
+  </div>
+
+  <div class="grid">
+    <!-- Left column -->
+    <div class="card">
+      <h2>Auction fees & live hammer</h2>
+
+      <div class="row">
+        <label>Current hammer ($)</label>
+        <input id="curHammer" type="number" inputmode="decimal" step="0.01" value="0">
+      </div>
+
+      <div class="row">
+        <label>Buyer’s premium (%)</label>
+        <input id="bp" type="number" inputmode="decimal" step="0.01" value="18">
+      </div>
+
+      <div class="row">
+        <label>Sales tax (%)</label>
+        <input id="tax" type="number" inputmode="decimal" step="0.01" value="0">
+      </div>
+
+      <div class="row">
+        <label>Shipping ($)</label>
+        <input id="ship" type="number" inputmode="decimal" step="0.01" value="25">
+      </div>
+
+      <div class="row">
+        <label>Tax applies to</label>
+        <select id="taxBase">
+          <option value="hammer_plus_bp" selected>Hammer + BP (typical)</option>
+          <option value="hammer_only">Hammer only</option>
+          <option value="subtotal_including_ship">Hammer + BP + Shipping</option>
+        </select>
+      </div>
+
+      <div class="small">Live bidding: update “Current hammer” and you’ll instantly see all-in and profit/melt math.</div>
+
+      <hr class="divider" />
+
+      <h2>Spot (two metals)</h2>
+
+      <div class="row">
+        <label>Gold spot ($/toz)</label>
+        <input id="spotAu" type="number" inputmode="decimal" step="0.01" value="2150.00">
+      </div>
+      <div class="pillrow">
+        <span class="pill" id="auMinus10">Gold −10%</span>
+        <span class="pill" id="auMinus20">Gold −20%</span>
+        <span class="pill" id="auReset">Gold reset</span>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <label>Silver spot ($/toz)</label>
+        <input id="spotAg" type="number" inputmode="decimal" step="0.01" value="25.00">
+      </div>
+      <div class="pillrow">
+        <span class="pill" id="agMinus10">Silver −10%</span>
+        <span class="pill" id="agMinus20">Silver −20%</span>
+        <span class="pill" id="agReset">Silver reset</span>
+      </div>
+
+      <div class="small muted">These spot buttons are “what-if spot drops” stress tests (no API calls; stays offline).</div>
+    </div>
+
+    <!-- Right column: Melt tab content -->
+    <div class="card" id="cardMelt">
+      <h2>Lot builder</h2>
+
+      <div class="row">
+        <label>Add item preset</label>
+        <select id="itemType">
+          <option value="junk90">90% US silver (by $ Face Value)</option>
+          <option value="junk90bu">90% US silver (BU/full-weight, by $FV)</option>
+          <option value="halves40">40% Kennedy halves (by # halves)</option>
+          <option value="warnickels">35% War nickels (by # nickels)</option>
+
+          <option value="ase">ASE (1.000 ozt silver)</option>
+          <option value="mapleAg">Silver Maple (1.000 ozt silver)</option>
+          <option value="britAg">Silver Britannia (1.000 ozt silver)</option>
+          <option value="genericAg">Generic .999 silver (by ozt each)</option>
+
+          <option value="age1">AGE 1 oz (AGW 1.000)</option>
+          <option value="ageHalf">AGE 1/2 oz (AGW 0.500)</option>
+          <option value="ageQuarter">AGE 1/4 oz (AGW 0.250)</option>
+          <option value="ageTenth">AGE 1/10 oz (AGW 0.100)</option>
+
+          <option value="krug">Krugerrand 1 oz (AGW 1.000)</option>
+          <option value="mapleAu">Gold Maple 1 oz (.9999)</option>
+          <option value="britAu">Gold Britannia 1 oz (.9999 default)</option>
+          <option value="genericAu">Generic .999 gold (by ozt each)</option>
+
+          <option value="gold250">US $2.50 pre-33 (AGW 0.12094)</option>
+          <option value="gold5">US $5 pre-33 (AGW 0.24187)</option>
+          <option value="gold10">US $10 pre-33 (AGW 0.48375)</option>
+          <option value="gold20">US $20 pre-33 (AGW 0.96750)</option>
+
+          <option value="jewelryGold">Jewelry (gold karat by grams)</option>
+          <option value="jewelrySilver">Jewelry (sterling by grams)</option>
+
+          <option value="customAg">Custom silver (grams/toz + purity)</option>
+          <option value="customAu">Custom gold (grams/toz + purity)</option>
+        </select>
+      </div>
+
+      <div id="itemInputs" class="small"></div>
+
+      <div class="btnrow">
+        <button id="addItem">Add to lot</button>
+        <button id="clearLot">Clear lot</button>
+      </div>
+
+      <hr class="divider" />
+
+      <div class="row">
+        <label>Allowed premium over TOTAL melt (%)</label>
+        <input id="premLot" type="number" inputmode="decimal" step="0.01" value="0">
+      </div>
+      <div class="pillrow">
+        <span class="pill" data-prem="-20">−20%</span>
+        <span class="pill" data-prem="-10">−10%</span>
+        <span class="pill" data-prem="0">0%</span>
+        <span class="pill" data-prem="5">+5%</span>
+        <span class="pill" data-prem="10">+10%</span>
+        <span class="pill" data-prem="15">+15%</span>
+        <span class="pill" data-prem="20">+20%</span>
+      </div>
+      <div class="small muted">This premium applies to the whole lot melt (your “buy at/below melt” discipline works perfectly here).</div>
+
+      <table class="table" id="lotTable">
+        <thead>
+          <tr>
+            <th style="width:34%;">Item</th>
+            <th class="right" style="width:10%;">Qty</th>
+            <th class="right" style="width:18%;">Pure oz</th>
+            <th class="right" style="width:18%;">Melt</th>
+            <th class="right" style="width:20%;">Action</th>
+          </tr>
+        </thead>
+        <tbody id="lotBody">
+          <tr><td colspan="5" class="muted">No items yet. Add a few and the dashboard will compute totals.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Resale tab content -->
+    <div class="card" id="cardResale" style="display:none;">
+      <h2>Resale / Profit (single item)</h2>
+      <div class="row">
+        <label>Expected sale price ($)</label>
+        <input id="sale" type="number" inputmode="decimal" step="0.01" value="900">
+      </div>
+      <div class="row">
+        <label>Total selling fees (%)</label>
+        <input id="fees" type="number" inputmode="decimal" step="0.01" value="13.25">
+      </div>
+      <div class="row">
+        <label>Fixed fee ($)</label>
+        <input id="fixedfee" type="number" inputmode="decimal" step="0.01" value="0.30">
+      </div>
+      <div class="row">
+        <label>Other costs ($)</label>
+        <input id="other" type="number" inputmode="decimal" step="0.01" value="55">
+      </div>
+      <div class="row">
+        <label>Desired net profit ($)</label>
+        <input id="profit" type="number" inputmode="decimal" step="0.01" value="200">
+      </div>
+      <div class="small">Shows net profit at current hammer, and your max hammer for the profit goal.</div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="card">
+      <h2>Dashboard</h2>
+      <div class="out" id="out">—</div>
+      <div class="btnrow">
+        <button id="save">Save Defaults</button>
+        <button id="reset">Reset</button>
+      </div>
+      <div class="small">Everything is saved locally on your phone (no account; works offline).</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  function num(id, fallback=0){
+    const el = $(id);
+    if (!el) return fallback;
+    const v = parseFloat(el.value);
+    return Number.isFinite(v) ? v : fallback;
+  }
+  function clampNonNeg(x){ return x < 0 ? 0 : x; }
+  function formatMoney(x){
+    if (!Number.isFinite(x)) return "—";
+    return x.toLocaleString(undefined, { style:"currency", currency:"USD", maximumFractionDigits: 2 });
+  }
+  function formatPct(x){
+    if (!Number.isFinite(x)) return "—";
+    return x.toFixed(2) + "%";
+  }
+
+  function calcAuction(bpPct, taxPct, ship, taxBase){
+    const bp = bpPct / 100;
+    const tax = taxPct / 100;
+
+    if (taxBase === "hammer_only"){
+      return { mult: 1 + bp + tax, shipMult: 1.0, formulaText: "AllIn = Hammer×(1+BP+Tax) + Ship" };
+    }
+    if (taxBase === "subtotal_including_ship"){
+      return { mult: (1 + bp) * (1 + tax), shipMult: (1 + tax), formulaText: "AllIn = (Hammer×(1+BP)+Ship)×(1+Tax)" };
+    }
+    return { mult: (1 + bp) * (1 + tax), shipMult: 1.0, formulaText: "AllIn = Hammer×(1+BP)×(1+Tax) + Ship" };
+  }
+
+  // Stable constants
+  const CONST = {
+    // 90% US silver by $1 FV
+    ASW_90_WORN: 0.7150,
+    ASW_90_BU:   0.7234,
+
+    ASW_HALF_40: 0.1479,
+    ASW_WAR_NICKEL: 0.05626,
+
+    // Pre-33 gold AGW
+    AGW: { gold250:0.12094, gold5:0.24187, gold10:0.48375, gold20:0.96750 },
+
+    // Bullion pure/AGW for 1 coin
+    BULLION: {
+      ase:    { metal:"Ag", pureToz:1.0,  name:"ASE (1 ozt Ag)" },
+      mapleAg:{ metal:"Ag", pureToz:1.0,  name:"Silver Maple (1 ozt Ag)" },
+      britAg: { metal:"Ag", pureToz:1.0,  name:"Silver Britannia (1 ozt Ag)" },
+
+      age1:      { metal:"Au", pureToz:1.0,  name:"AGE 1 oz (AGW 1.000)" },
+      ageHalf:   { metal:"Au", pureToz:0.5,  name:"AGE 1/2 oz (AGW 0.500)" },
+      ageQuarter:{ metal:"Au", pureToz:0.25, name:"AGE 1/4 oz (AGW 0.250)" },
+      ageTenth:  { metal:"Au", pureToz:0.1,  name:"AGE 1/10 oz (AGW 0.100)" },
+
+      krug:    { metal:"Au", pureToz:1.0,    name:"Krugerrand (AGW 1.000)" },
+      mapleAu: { metal:"Au", pureToz:0.9999, name:"Gold Maple (0.9999 ozt Au)" },
+      britAu:  { metal:"Au", pureToz:0.9999, name:"Gold Britannia (0.9999 ozt Au)" }
+    }
+  };
+
+  // Lot storage
+  let lot = [];
+
+  function saveLot(){
+    localStorage.setItem("auctionLot_v1", JSON.stringify(lot));
+  }
+  function loadLot(){
+    const raw = localStorage.getItem("auctionLot_v1");
+    if (!raw) return;
+    try{
+      lot = JSON.parse(raw) || [];
+      if (!Array.isArray(lot)) lot = [];
+    }catch(e){ lot = []; }
+  }
+
+  function spotForMetal(metal){
+    return metal === "Au" ? num("spotAu") : num("spotAg");
+  }
+
+  function renderItemInputs(){
+    const t = $("itemType").value;
+    const box = $("itemInputs");
+
+    const input = (id, label, value="", step="0.01") => `
+      <div class="row" style="margin-top:8px;">
+        <label>${label}</label>
+        <input id="${id}" type="number" inputmode="decimal" step="${step}" value="${value}">
+      </div>
+    `;
+    const selUnit = (id, label) => `
+      <div class="row" style="margin-top:8px;">
+        <label>${label}</label>
+        <select id="${id}">
+          <option value="grams" selected>grams</option>
+          <option value="toz">troy oz</option>
+        </select>
+      </div>
+    `;
+
+    let html = `<div class="small muted">Set the inputs, then tap “Add to lot”.</div>`;
+    if (t === "junk90" || t === "junk90bu"){
+      html += input("inFV", "Face value ($)", "10", "0.01");
+    } else if (t === "halves40"){
+      html += input("inQty", "# of 40% halves", "20", "1");
+    } else if (t === "warnickels"){
+      html += input("inQty", "# of war nickels", "20", "1");
+    } else if (t === "genericAg" || t === "genericAu"){
+      html += input("inQty", "Quantity", "1", "1");
+      html += input("inOztEach", "ozt each (e.g., 1.0)", "1", "0.0001");
+    } else if (t in CONST.BULLION){
+      html += input("inQty", "Quantity", "1", "1");
+    } else if (t in CONST.AGW){
+      html += input("inQty", "Quantity", "1", "1");
+    } else if (t === "jewelryGold"){
+      html += input("inQty", "Quantity", "1", "1");
+      html += input("inGrams", "Total grams", "10.2", "0.01");
+      html += input("inDeduct", "Stone/other deduction (g)", "0.4", "0.01");
+      html += input("inKarat", "Karat (10/14/18/22/24)", "14", "1");
+      html += `<div class="small muted">Gold jewelry purity = karat/24 (14k=0.5833). If you want exact 0.585, use Custom Gold with purity 0.585.</div>`;
+    } else if (t === "jewelrySilver"){
+      html += input("inQty", "Quantity", "1", "1");
+      html += input("inGrams", "Total grams", "50", "0.01");
+      html += input("inDeduct", "Non-metal deduction (g)", "0", "0.01");
+      html += `<div class="small muted">Assumes sterling (.925). If it’s coin silver or unknown, use Custom Silver.</div>`;
+    } else if (t === "customAg" || t === "customAu"){
+      html += input("inQty", "Quantity", "1", "1");
+      html += selUnit("inUnit", "Weight unit");
+      html += input("inWeight", "Weight (per item)", "10", "0.0001");
+      html += input("inDeduct", "Deduction (grams)", "0", "0.01");
+      html += input("inPurity", "Purity (decimal, e.g. 0.999, 0.925)", t==="customAu" ? "0.999" : "0.999", "0.0001");
+    }
+
+    box.innerHTML = html;
+
+    // Wire inputs to recalc
+    ["inQty","inFV","inOztEach","inGrams","inDeduct","inKarat","inUnit","inWeight","inPurity"].forEach(id=>{
+      const el = $(id);
+      if (el){
+        el.addEventListener("input", calc);
+        el.addEventListener("change", calc);
+      }
+    });
+    calc();
+  }
+
+  function addItem(){
+    const t = $("itemType").value;
+
+    // Build a normalized item:
+    // { id, label, metal, qty, pureTozTotal }
+    const id = crypto.randomUUID ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2));
+
+    let metal = "Ag";
+    let qty = 1;
+    let pureTozTotal = 0;
+    let label = "";
+
+    if (t === "junk90" || t === "junk90bu"){
+      const fv = clampNonNeg(num("inFV"));
+      const asw = (t === "junk90bu") ? CONST.ASW_90_BU : CONST.ASW_90_WORN;
+      metal = "Ag";
+      qty = 1;
+      pureTozTotal = fv * asw;
+      label = `90% US silver ${t==="junk90bu"?"(BU)":"(worn)"} — $${fv.toFixed(2)} FV`;
+    } else if (t === "halves40"){
+      const n = clampNonNeg(num("inQty"));
+      metal = "Ag";
+      qty = n;
+      pureTozTotal = n * CONST.ASW_HALF_40;
+      label = `40% halves — ${n.toFixed(0)} halves`;
+    } else if (t === "warnickels"){
+      const n = clampNonNeg(num("inQty"));
+      metal = "Ag";
+      qty = n;
+      pureTozTotal = n * CONST.ASW_WAR_NICKEL;
+      label = `War nickels — ${n.toFixed(0)} nickels`;
+    } else if (t === "genericAg" || t === "genericAu"){
+      const n = clampNonNeg(num("inQty"));
+      const each = clampNonNeg(num("inOztEach"));
+      metal = (t === "genericAu") ? "Au" : "Ag";
+      qty = n;
+      const purity = 0.999;
+      pureTozTotal = n * each * purity;
+      label = `${metal==="Au"?"Gold":"Silver"} generic .999 — ${n.toFixed(0)} × ${each} ozt`;
+    } else if (t in CONST.BULLION){
+      const n = clampNonNeg(num("inQty"));
+      metal = CONST.BULLION[t].metal;
+      qty = n;
+      pureTozTotal = n * CONST.BULLION[t].pureToz;
+      label = `${CONST.BULLION[t].name} — qty ${n.toFixed(0)}`;
+    } else if (t in CONST.AGW){
+      const n = clampNonNeg(num("inQty"));
+      metal = "Au";
+      qty = n;
+      pureTozTotal = n * CONST.AGW[t];
+      label = `Pre-33 ${t.replace("gold","$")} — qty ${n.toFixed(0)} (AGW ${CONST.AGW[t]})`;
+    } else if (t === "jewelryGold"){
+      const n = clampNonNeg(num("inQty"));
+      const grams = clampNonNeg(num("inGrams"));
+      const deduct = clampNonNeg(num("inDeduct"));
+      const k = clampNonNeg(num("inKarat",14));
+      metal = "Au";
+      qty = n;
+      const purity = k/24.0;
+      const metalG = clampNonNeg(grams - deduct);
+      const pureTozEach = (metalG / 31.1034768) * purity;
+      pureTozTotal = n * pureTozEach;
+      label = `Gold jewelry — ${n.toFixed(0)} pcs, ${grams}g, deduct ${deduct}g, ${k}k`;
+    } else if (t === "jewelrySilver"){
+      const n = clampNonNeg(num("inQty"));
+      const grams = clampNonNeg(num("inGrams"));
+      const deduct = clampNonNeg(num("inDeduct"));
+      metal = "Ag";
+      qty = n;
+      const purity = 0.925;
+      const metalG = clampNonNeg(grams - deduct);
+      const pureTozEach = (metalG / 31.1034768) * purity;
+      pureTozTotal = n * pureTozEach;
+      label = `Sterling jewelry — ${n.toFixed(0)} pcs, ${grams}g, deduct ${deduct}g`;
+    } else if (t === "customAg" || t === "customAu"){
+      const n = clampNonNeg(num("inQty"));
+      const unit = $("inUnit") ? $("inUnit").value : "grams";
+      const w = clampNonNeg(num("inWeight"));
+      const deductG = clampNonNeg(num("inDeduct"));
+      const purity = clampNonNeg(num("inPurity"));
+      metal = (t === "customAu") ? "Au" : "Ag";
+      qty = n;
+
+      let pureTozEach = 0;
+      if (unit === "grams"){
+        const metalG = clampNonNeg(w - deductG);
+        pureTozEach = (metalG / 31.1034768) * purity;
+      } else {
+        // weight given in toz, deduct still in grams
+        const deductToz = deductG / 31.1034768;
+        const metalToz = clampNonNeg(w - deductToz);
+        pureTozEach = metalToz * purity;
+      }
+      pureTozTotal = n * pureTozEach;
+      label = `Custom ${metal==="Au"?"gold":"silver"} — ${n.toFixed(0)} pcs`;
+    }
+
+    // Guard: if zero, ignore
+    if (!(pureTozTotal > 0)){
+      alert("That item computes to 0 melt. Check your inputs.");
+      return;
+    }
+
+    lot.push({ id, label, metal, qty, pureTozTotal });
+    saveLot();
+    renderLot();
+    calc();
+  }
+
+  function removeItem(id){
+    lot = lot.filter(x => x.id !== id);
+    saveLot();
+    renderLot();
+    calc();
+  }
+
+  function clearLot(){
+    lot = [];
+    saveLot();
+    renderLot();
+    calc();
+  }
+
+  function renderLot(){
+    const body = $("lotBody");
+    if (!body) return;
+
+    if (!lot.length){
+      body.innerHTML = `<tr><td colspan="5" class="muted">No items yet. Add a few and the dashboard will compute totals.</td></tr>`;
+      return;
+    }
+
+    const rows = lot.map(it => {
+      const spot = spotForMetal(it.metal);
+      const melt = it.pureTozTotal * spot;
+      return `
+        <tr>
+          <td>${it.label}<div class="muted">Metal: ${it.metal}</div></td>
+          <td class="right nowrap">${it.qty}</td>
+          <td class="right nowrap">${it.pureTozTotal.toFixed(6)}</td>
+          <td class="right nowrap">${formatMoney(melt)}</td>
+          <td class="right nowrap"><button onclick="window.__rm('${it.id}')">Remove</button></td>
+        </tr>
+      `;
+    }).join("");
+
+    body.innerHTML = rows;
+  }
+
+  function calcLotMelt(){
+    let meltAu = 0, meltAg = 0, pureAu = 0, pureAg = 0;
+    const spotAu = num("spotAu");
+    const spotAg = num("spotAg");
+    for (const it of lot){
+      if (it.metal === "Au"){
+        pureAu += it.pureTozTotal;
+        meltAu += it.pureTozTotal * spotAu;
+      } else {
+        pureAg += it.pureTozTotal;
+        meltAg += it.pureTozTotal * spotAg;
+      }
+    }
+    return { pureAu, pureAg, meltAu, meltAg, meltTotal: meltAu + meltAg };
+  }
+
+  function classify(delta){
+    if (!Number.isFinite(delta)) return { tag:"—", cls:"muted" };
+    if (delta <= -50) return { tag:"UNDER", cls:"good" };
+    if (delta < 0) return { tag:"UNDER (tight)", cls:"warn" };
+    if (delta <= 50) return { tag:"OVER (tight)", cls:"warn" };
+    return { tag:"OVER (walk)", cls:"danger" };
+  }
+
+  function calc(){
+    const curHammer = clampNonNeg(num("curHammer"));
+    const bpPct = num("bp");
+    const taxPct = num("tax");
+    const ship = clampNonNeg(num("ship"));
+    const taxBase = $("taxBase").value;
+
+    const auc = calcAuction(bpPct, taxPct, ship, taxBase);
+    const shipEff = ship * auc.shipMult;
+    const curAllIn = curHammer * auc.mult + shipEff;
+
+    const meltTab = $("tabMelt").classList.contains("active");
+    let lines = [];
+
+    lines.push(`AUCTION`);
+    lines.push(`  BP=${bpPct.toFixed(2)}%  Tax=${taxPct.toFixed(2)}%  Ship=${formatMoney(ship)}  TaxBase=${taxBase}`);
+    lines.push(`  ${auc.formulaText}`);
+    lines.push(`  Hammer mult=${auc.mult.toFixed(5)}  Ship mult=${auc.shipMult.toFixed(5)}`);
+    lines.push(`  Current hammer=${formatMoney(curHammer)}  ⇒ Current all-in=${formatMoney(curAllIn)}`);
+    lines.push("");
+
+    if (meltTab){
+      const premPct = num("premLot");
+      const lm = calcLotMelt();
+
+      lines.push(`LOT / MELT-FIRST`);
+      lines.push(`  Gold spot=${formatMoney(num("spotAu"))}/toz  Silver spot=${formatMoney(num("spotAg"))}/toz`);
+      lines.push(`  Pure metal: Au=${lm.pureAu.toFixed(6)} toz, Ag=${lm.pureAg.toFixed(6)} toz`);
+      lines.push(`  Melt: Au=${formatMoney(lm.meltAu)}  Ag=${formatMoney(lm.meltAg)}  TOTAL=${formatMoney(lm.meltTotal)}`);
+
+      const targetAllIn = lm.meltTotal * (1 + premPct/100);
+      const maxHammer = (targetAllIn - shipEff) / auc.mult;
+
+      lines.push(`  Allowed premium on TOTAL melt=${premPct.toFixed(2)}%  ⇒ Target delivered=${formatMoney(targetAllIn)}`);
+      lines.push(`  MAX HAMMER=${formatMoney(maxHammer)}`);
+      lines.push("");
+
+      const overMelt$ = curAllIn - lm.meltTotal;
+      const overMeltPct = (lm.meltTotal > 0) ? (overMelt$ / lm.meltTotal * 100) : NaN;
+
+      const delta = curHammer - maxHammer;
+      const sig = classify(delta);
+
+      lines.push(`AT CURRENT HAMMER`);
+      lines.push(`  All-in=${formatMoney(curAllIn)}`);
+      lines.push(`  Over/under TOTAL melt: ${formatMoney(overMelt$)}  (${formatPct(overMeltPct)})`);
+      lines.push(`  Hammer vs max: ${formatMoney(delta)}  [${sig.tag}]`);
+
+      if (!lot.length){
+        lines.push("");
+        lines.push(`(Add items to the lot to compute totals.)`);
+      }
+    } else {
+      // Resale/profit mode (single item)
+      const sale = num("sale");
+      const feesPct = num("fees");
+      const fixedfee = num("fixedfee");
+      const other = clampNonNeg(num("other"));
+      const profitGoal = clampNonNeg(num("profit"));
+
+      const netAfterFees = sale * (1 - feesPct/100) - fixedfee;
+      const targetAllIn = netAfterFees - other - profitGoal;
+      const maxHammer = (targetAllIn - shipEff) / auc.mult;
+      const netProfitNow = netAfterFees - other - curAllIn;
+
+      const delta = curHammer - maxHammer;
+      const sig = classify(delta);
+
+      lines.push(`RESALE / PROFIT (single item)`);
+      lines.push(`  Expected sale=${formatMoney(sale)}`);
+      lines.push(`  Fees=${feesPct.toFixed(2)}% + ${formatMoney(fixedfee)}  Other=${formatMoney(other)}`);
+      lines.push(`  Net after fees=${formatMoney(netAfterFees)}`);
+      lines.push(`  Profit goal=${formatMoney(profitGoal)}  ⇒ Target delivered=${formatMoney(targetAllIn)}`);
+      lines.push(`  MAX HAMMER=${formatMoney(maxHammer)}`);
+      lines.push("");
+      lines.push(`AT CURRENT HAMMER`);
+      lines.push(`  All-in=${formatMoney(curAllIn)}`);
+      lines.push(`  Net profit now=${formatMoney(netProfitNow)}  (goal=${formatMoney(profitGoal)})`);
+      lines.push(`  Hammer vs max: ${formatMoney(delta)}  [${sig.tag}]`);
+    }
+
+    $("out").textContent = lines.join("\n");
+  }
+
+  // Spot scenario buttons
+  function rememberSpot(id, key){
+    const el = $(id);
+    if (!el.dataset[key]) el.dataset[key] = el.value;
+  }
+  function setSpotScaled(id, key, scale){
+    rememberSpot(id, key);
+    const base = parseFloat($(id).dataset[key] || $(id).value);
+    if (Number.isFinite(base)) $(id).value = (base * scale).toFixed(2);
+    renderLot(); calc();
+  }
+  function resetSpot(id, key){
+    const el = $(id);
+    if (el.dataset[key]){
+      el.value = parseFloat(el.dataset[key]).toFixed(2);
+      delete el.dataset[key];
+      renderLot(); calc();
+    }
+  }
+
+  $("auMinus10").addEventListener("click", ()=>setSpotScaled("spotAu","baseAu",0.90));
+  $("auMinus20").addEventListener("click", ()=>setSpotScaled("spotAu","baseAu",0.80));
+  $("auReset").addEventListener("click", ()=>resetSpot("spotAu","baseAu"));
+
+  $("agMinus10").addEventListener("click", ()=>setSpotScaled("spotAg","baseAg",0.90));
+  $("agMinus20").addEventListener("click", ()=>setSpotScaled("spotAg","baseAg",0.80));
+  $("agReset").addEventListener("click", ()=>resetSpot("spotAg","baseAg"));
+
+  // Tabs
+  $("tabMelt").addEventListener("click", () => {
+    $("tabMelt").classList.add("active");
+    $("tabResale").classList.remove("active");
+    $("cardMelt").style.display = "";
+    $("cardResale").style.display = "none";
+    calc();
+  });
+  $("tabResale").addEventListener("click", () => {
+    $("tabResale").classList.add("active");
+    $("tabMelt").classList.remove("active");
+    $("cardMelt").style.display = "none";
+    $("cardResale").style.display = "";
+    calc();
+  });
+
+  // Premium pills
+  document.querySelectorAll(".pill[data-prem]").forEach(p=>{
+    p.addEventListener("click", ()=>{
+      const v = parseFloat(p.getAttribute("data-prem"));
+      if (Number.isFinite(v)) $("premLot").value = v.toFixed(2);
+      calc();
+    });
+  });
+
+  // Save/reset defaults
+  function saveDefaults(){
+    const ids = ["curHammer","bp","tax","ship","taxBase","spotAu","spotAg","premLot","itemType","sale","fees","fixedfee","other","profit"];
+    const data = {};
+    ids.forEach(id => data[id] = $(id).value);
+    // also store base spot memories if set
+    if ($("spotAu").dataset.baseAu) data["_baseAu"] = $("spotAu").dataset.baseAu;
+    if ($("spotAg").dataset.baseAg) data["_baseAg"] = $("spotAg").dataset.baseAg;
+
+    localStorage.setItem("auctionDefaults_vLot1", JSON.stringify(data));
+    saveLot();
+  }
+  function loadDefaults(){
+    const raw = localStorage.getItem("auctionDefaults_vLot1");
+    if (!raw) return;
+    try{
+      const data = JSON.parse(raw);
+      Object.keys(data).forEach(k => { if ($(k)) $(k).value = data[k]; });
+      if (data["_baseAu"]) $("spotAu").dataset.baseAu = data["_baseAu"];
+      if (data["_baseAg"]) $("spotAg").dataset.baseAg = data["_baseAg"];
+    }catch(e){}
+  }
+
+  $("save").addEventListener("click", ()=>{ saveDefaults(); calc(); });
+  $("reset").addEventListener("click", ()=>{
+    localStorage.removeItem("auctionDefaults_vLot1");
+    localStorage.removeItem("auctionLot_v1");
+    location.reload();
+  });
+
+  // Reactivity
+  ["curHammer","bp","tax","ship","taxBase","spotAu","spotAg","premLot","sale","fees","fixedfee","other","profit"]
+    .forEach(id => $(id).addEventListener("input", ()=>{ renderLot(); calc(); }));
+  $("itemType").addEventListener("change", renderItemInputs);
+
+  $("addItem").addEventListener("click", addItem);
+  $("clearLot").addEventListener("click", clearLot);
+
+  // expose remove
+  window.__rm = removeItem;
+
+  // Init
+  loadDefaults();
+  loadLot();
+  renderItemInputs();
+  renderLot();
+  calc();
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js");
+}
+</script>
+</body>
+</html>
