@@ -1,5 +1,8 @@
 <!doctype html>
 <html lang="en">
+<div id="spotStatus" style="font-size: 0.9rem; opacity: 0.85; margin: 8px 0;">
+  Spot: <span id="spotText">—</span>
+</div>
 <head>
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#121826">
@@ -793,5 +796,39 @@ if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js");
 }
 </script>
+<script>
+  function setSpotStatus(text) {
+    const el = document.getElementById("spotText");
+    if (el) el.textContent = text;
+  }
+
+  async function refreshSpotAndUpdateUI() {
+    try {
+      const { gold, silver } = await fetchSpotUSD();
+
+      // TODO: replace these two lines with YOUR app’s spot variables / inputs
+      // Example: document.getElementById("goldSpot").value = gold.toFixed(2);
+      // Example: document.getElementById("silverSpot").value = silver.toFixed(2);
+
+      setSpotStatus(`Gold $${gold.toFixed(2)}/oz • Silver $${silver.toFixed(2)}/oz (live)`);
+      // If your calculator needs to re-run, call your existing "recalc()" here.
+      // recalc();
+    } catch (e) {
+      const c = getCachedSpot();
+      if (c.gold && c.silver) {
+        setSpotStatus(`Gold $${c.gold.toFixed(2)}/oz • Silver $${c.silver.toFixed(2)}/oz (cached)`);
+      } else {
+        setSpotStatus(`Spot update failed (enter manually)`);
+      }
+    }
+  }
+
+  // On load + periodic refresh (every 2 minutes)
+  window.addEventListener("load", () => {
+    refreshSpotAndUpdateUI();
+    setInterval(refreshSpotAndUpdateUI, 120000);
+  });
+</script>
 </body>
+
 </html>
