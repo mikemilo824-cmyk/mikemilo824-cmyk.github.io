@@ -464,7 +464,7 @@ const DEFAULTS = {
 };
 
 // Spot feed (may fail due to CORS on some networks)
-const SPOT_URL = "https://data-asg.goldprice.org/dbXRates/USD";
+const SPOT_URL = "https://api.allorigins.win/raw?url=https://data-asg.goldprice.org/dbXRates/USD";
 
 function toNum(v){
   if (v === null || v === undefined) return 0;
@@ -666,6 +666,7 @@ async function refreshSpot(){
       setSpotStatus(`Gold $${fmt(c.gold)} • Silver $${fmt(c.silver)}`, "cached");
     } else {
       setSpotStatus("Spot update failed", "manual mode");
+      alert("Spot update failed (blocked by the data source). Your app is fine — enter spot manually or we’ll switch to another feed.");
       // leave user values untouched
     }
   } finally {
