@@ -1,0 +1,31 @@
+name: Update spot.json
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  update-spot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch spot
+        run: |
+          curl https://api.metals.live/v1/spot > raw.json
+          GOLD=$(jq '.[] | select(.gold) | .gold' raw.json)
+          SILVER=$(jq '.[] | select(.silver) | .silver' raw.json)
+
+          echo "{\"source\":\"metals.live\",\"updated_utc\":\"$(date -u +%FT%TZ)\",\"gold_usd_oz\":$GOLD,\"silver_usd_oz\":$SILVER}" > spot.json
+
+      - name: Commit update
+        run: |
+          git config user.name "hammerbid-bot"
+          git config user.email "bot@github.com"
+          git add spot.json
+          git commit -m "update spot" || exit 0
+          git push
