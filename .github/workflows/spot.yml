@@ -16,11 +16,7 @@ jobs:
 
       - name: Fetch spot
         run: |
-          curl https://api.metals.live/v1/spot > raw.json
-          GOLD=$(jq '.[] | select(.gold) | .gold' raw.json)
-          SILVER=$(jq '.[] | select(.silver) | .silver' raw.json)
-
-          echo "{\"source\":\"metals.live\",\"updated_utc\":\"$(date -u +%FT%TZ)\",\"gold_usd_oz\":$GOLD,\"silver_usd_oz\":$SILVER}" > spot.json
+          curl -L "https://api.allorigins.win/raw?url=https%3A%2F%2Fapi.metals.live%2Fv1%2Fspot" > raw.json
 
       - name: Commit update
         run: |
