@@ -1,6 +1,6 @@
 {
-  "source": "metals.live",
-  "updated_utc": null,
-  "gold_usd_oz": null,
-  "silver_usd_oz": null
+  "source": "init",
+  "updated_utc": "1970-01-01T00:00:00Z",
+  "gold_usd_oz": 0,
+  "silver_usd_oz": 0
 }
