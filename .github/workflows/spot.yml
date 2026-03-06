@@ -1,9 +1,9 @@
 name: Update spot.json
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "*/30 * * * *"
 
 permissions:
   contents: write
@@ -12,16 +12,47 @@ jobs:
   update-spot:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Fetch spot
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Fetch spot (metals.live)
         run: |
-          curl -L "https://api.allorigins.win/raw?url=https%3A%2F%2Fapi.metals.live%2Fv1%2Fspot" > raw.json
+          set -e
+          curl -L --fail --tlsv1.2 https://api.metals.live/v1/spot -o raw.json
+          echo "raw.json sample:"
+          head -c 300 raw.json || true
+          echo ""
+
+      - name: Build spot.json
+        run: |
+          set -e
+          GOLD=$(jq -r 'map(select(has("gold")))[0].gold // empty' raw.json)
+          SILVER=$(jq -r 'map(select(has("silver")))[0].silver // empty' raw.json)
+
+          if [ -z "$GOLD" ] || [ -z "$SILVER" ]; then
+            echo "Could not parse gold/silver from raw.json"
+            cat raw.json
+            exit 1
+          fi
+
+          jq -n \
+            --arg source "metals.live" \
+            --arg updated_utc "$(date -u +%FT%TZ)" \
+            --argjson gold_usd_oz "$GOLD" \
+            --argjson silver_usd_oz "$SILVER" \
+            '{source:$source, updated_utc:$updated_utc, gold_usd_oz:$gold_usd_oz, silver_usd_oz:$silver_usd_oz}' \
+            > spot.json
+
+          echo "spot.json:"
+          cat spot.json
 
       - name: Commit update
         run: |
-          git config user.name "hammerbid-bot"
-          git config user.email "bot@github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add spot.json
-          git commit -m "update spot" || exit 0
+          git commit -m "Update spot.json" || exit 0
           git push
