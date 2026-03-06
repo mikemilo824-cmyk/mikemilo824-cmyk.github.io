@@ -1,11 +1,10 @@
-const CACHE_NAME = "hammerbid-v1";
+const CACHE_NAME = "hammerbid-v2";
 const ASSETS = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
   "./icon-192.png",
-  "./icon-512.png",
-  "./spot.json"
+  "./icon-512.png"
 ];
 
 self.addEventListener("install", (event) => {
@@ -22,17 +21,12 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Network-first for spot.json, cache-first for everything else
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
   if (url.pathname.endsWith("/spot.json")) {
     event.respondWith(
-      fetch(event.request).then(res => {
-        const copy = res.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
-        return res;
-      }).catch(() => caches.match(event.request))
+      fetch(event.request, { cache: "no-store" }).catch(() => caches.match(event.request))
     );
     return;
   }
