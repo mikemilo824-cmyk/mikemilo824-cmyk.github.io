@@ -3,193 +3,147 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#111827" />
+  <meta name="theme-color" content="#0b1220" />
   <title>HammerBid</title>
 
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" href="icon-192.png" />
-  <link rel="apple-touch-icon" href="icon-192.png" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
 
   <style>
     :root{
       --bg:#0b1220;
-      --card:#111827;
-      --card2:#0f172a;
-      --text:#e5e7eb;
-      --muted:#9ca3af;
-      --accent:#22c55e;
-      --accent2:#60a5fa;
-      --warn:#f59e0b;
-      --bad:#ef4444;
-      --line:#1f2937;
-      --chip:#0b1a33;
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --radius: 18px;
-      --pad: 14px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --panel:#0f1a2e;
+      --panel2:#0c1528;
+      --text:#e8eefc;
+      --muted:#aab6d6;
+      --line:rgba(255,255,255,.10);
+      --good:#31c48d;
+      --bad:#ff5a5f;
+      --warn:#fbbf24;
+      --btn:#1b2a45;
+      --btn2:#22365c;
+      --blue:#3b82f6;
+      --shadow: 0 12px 30px rgba(0,0,0,.35);
+      --radius:18px;
     }
     *{box-sizing:border-box}
     body{
       margin:0;
-      font-family:var(--sans);
-      background: radial-gradient(1200px 600px at 20% 0%, #142045 0%, var(--bg) 55%);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: radial-gradient(1200px 700px at 10% 0%, #142346 0%, var(--bg) 60%);
       color:var(--text);
     }
+    .wrap{max-width:1100px;margin:0 auto;padding:18px}
     header{
-      position:sticky; top:0; z-index:20;
+      position:sticky;top:0;z-index:50;
+      background: linear-gradient(to bottom, rgba(11,18,32,.98), rgba(11,18,32,.70));
       backdrop-filter: blur(10px);
-      background: rgba(11,18,32,.72);
-      border-bottom:1px solid rgba(31,41,55,.7);
+      border-bottom:1px solid var(--line);
     }
-    .wrap{max-width:980px;margin:0 auto;padding:14px 14px 22px}
-    .row{display:flex; gap:12px; flex-wrap:wrap}
-    .title{
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-    }
-    .brand{
-      display:flex; align-items:center; gap:10px;
-      font-weight:800; letter-spacing:.3px; font-size:20px;
-    }
-    .dot{
-      width:12px;height:12px;border-radius:50%;
-      background: linear-gradient(135deg, var(--accent), #16a34a);
-      box-shadow: 0 0 0 4px rgba(34,197,94,.12);
-    }
-    .sub{
-      font-size:12px;color:var(--muted);
-      margin-top:2px;
-    }
+    .topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:14px 18px}
+    .brand{display:flex;gap:10px;align-items:center}
+    .dot{width:12px;height:12px;border-radius:50%;background:var(--good);box-shadow:0 0 0 4px rgba(49,196,141,.15)}
+    h1{font-size:20px;margin:0;letter-spacing:.2px}
+    .sub{color:var(--muted);font-size:12.5px;margin-top:2px}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
     .pill{
-      display:inline-flex; gap:8px; align-items:center;
-      padding:8px 10px; border:1px solid rgba(31,41,55,.8);
-      border-radius:999px; background: rgba(17,24,39,.6);
-      font-size:12px; color:var(--muted);
-      max-width:100%;
-    }
-    .pill strong{color:var(--text); font-weight:700}
-    .btn{
-      appearance:none; border:1px solid rgba(31,41,55,.9);
-      background: rgba(17,24,39,.75);
+      display:flex;gap:8px;align-items:center;
+      background: rgba(255,255,255,.06);
+      border:1px solid var(--line);
+      padding:10px 12px;border-radius:999px;
       color:var(--text);
-      padding:10px 12px;
-      border-radius: 12px;
-      font-weight:700;
+    }
+    .tiny{font-size:12px;color:var(--muted)}
+    .btn{
+      border:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.05));
+      color:var(--text);
+      padding:10px 12px;border-radius:12px;
       cursor:pointer;
-      box-shadow: 0 6px 18px rgba(0,0,0,.25);
     }
-    .btn:active{transform: translateY(1px)}
-    .btn.primary{border-color: rgba(34,197,94,.35); background: rgba(34,197,94,.14)}
-    .btn.blue{border-color: rgba(96,165,250,.35); background: rgba(96,165,250,.14)}
-    .btn.warn{border-color: rgba(245,158,11,.35); background: rgba(245,158,11,.14)}
-    .btn.bad{border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.12)}
-    .grid{
-      display:grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap:12px;
-      margin-top:12px;
-    }
+    .btn:hover{background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06))}
+    .btn.blue{border-color:rgba(59,130,246,.5); background: linear-gradient(180deg, rgba(59,130,246,.22), rgba(59,130,246,.10))}
+    .btn.bad{border-color:rgba(255,90,95,.45); background: linear-gradient(180deg, rgba(255,90,95,.22), rgba(255,90,95,.10))}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;margin-top:18px}
     .card{
-      grid-column: span 12;
-      background: linear-gradient(180deg, rgba(17,24,39,.92), rgba(15,23,42,.92));
-      border:1px solid rgba(31,41,55,.85);
+      grid-column:span 12;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.04));
+      border:1px solid var(--line);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: var(--pad);
+      padding:16px;
     }
+    .card h2{
+      margin:0 0 10px 0;
+      font-size:16px;
+      display:flex;justify-content:space-between;align-items:baseline;
+    }
+    .card h2 span{font-size:12px;color:var(--muted)}
+    .half{grid-column:span 12}
     @media(min-width:900px){
-      .card.half{grid-column: span 6;}
-      .card.third{grid-column: span 4;}
+      .half{grid-column:span 6}
     }
-    h2{
-      margin:0 0 8px;
-      font-size:15px;
-      letter-spacing:.2px;
-      display:flex; align-items:center; justify-content:space-between;
-      gap:10px;
-    }
-    h2 span{color:var(--muted); font-size:12px; font-weight:600}
-    .muted{color:var(--muted)}
-    .hr{height:1px;background:rgba(31,41,55,.85); margin:12px 0}
-    label{
-      display:block;
-      font-size:12px;
-      color:var(--muted);
-      margin:10px 0 6px;
-    }
+    label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
     input, select{
       width:100%;
-      background: rgba(2,6,23,.55);
-      border:1px solid rgba(31,41,55,.9);
-      border-radius: 12px;
-      padding:12px 12px;
+      padding:11px 12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
       color:var(--text);
       outline:none;
-      font-size:14px;
     }
-    input:focus, select:focus{
-      border-color: rgba(96,165,250,.55);
-      box-shadow: 0 0 0 4px rgba(96,165,250,.12);
-    }
-    .minirow{display:flex; gap:10px; flex-wrap:wrap}
-    .minirow > div{flex:1 1 140px}
-    .chips{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
-    .chip{
-      padding:8px 10px;
-      border-radius:999px;
-      background: rgba(11,26,51,.7);
-      border:1px solid rgba(31,41,55,.7);
-      font-size:12px;
-      color:var(--text);
-      cursor:pointer;
-      user-select:none;
-    }
-    .chip strong{font-family:var(--mono)}
-    .out{
-      display:grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap:10px;
-      margin-top:10px;
-    }
-    @media(max-width:520px){
-      .out{grid-template-columns:1fr}
-    }
+    input::placeholder{color:rgba(170,182,214,.7)}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+    .kpi{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(min-width:900px){.kpi{grid-template-columns:1fr 1fr 1fr 1fr}}
     .stat{
-      background: rgba(2,6,23,.35);
-      border:1px solid rgba(31,41,55,.75);
-      border-radius: 14px;
-      padding: 12px;
+      background: rgba(255,255,255,.05);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:12px;
     }
-    .stat .k{font-size:12px;color:var(--muted)}
-    .stat .v{font-size:18px;font-weight:900;margin-top:4px}
-    .good{color:var(--accent)}
-    .bad{color:var(--bad)}
-    .warnc{color:var(--warn)}
-    .footer{
-      margin-top:10px;
-      font-size:12px;
-      color:var(--muted);
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+    .stat .t{font-size:12px;color:var(--muted)}
+    .stat .v{font-size:18px;margin-top:6px;font-variant-numeric:tabular-nums}
+    .good{color:var(--good)}
+    .badc{color:var(--bad)}
+    .warn{color:var(--warn)}
+    .hr{height:1px;background:var(--line);margin:12px 0}
+    .modeTabs{display:flex;gap:8px;flex-wrap:wrap}
+    .tab{
+      padding:9px 11px;border-radius:999px;border:1px solid var(--line);
+      background: rgba(255,255,255,.05);cursor:pointer;color:var(--text);font-size:13px;
     }
-    .tiny{font-size:11px;color:var(--muted)}
-    .mono{font-family:var(--mono)}
+    .tab.active{border-color:rgba(59,130,246,.6); background: rgba(59,130,246,.18)}
+    .help{color:var(--muted);font-size:12px;line-height:1.4}
+    .toast{
+      position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
+      background: rgba(0,0,0,.78);border:1px solid var(--line);
+      color:var(--text);padding:10px 12px;border-radius:12px;
+      display:none;gap:10px;align-items:center;max-width:92vw;
+    }
+    .toast.show{display:flex}
+    .toast b{color:var(--good)}
   </style>
 </head>
 
 <body>
 <header>
-  <div class="wrap">
-    <div class="title">
+  <div class="topbar wrap">
+    <div class="brand">
+      <div class="dot" id="statusDot"></div>
       <div>
-        <div class="brand"><span class="dot"></span>HammerBid</div>
-        <div class="sub">Auction max-bid + melt + eBay/net — with auto spot (when available)</div>
+        <h1>HammerBid</h1>
+        <div class="sub">Auction max-bid + melt + eBay/net — with auto spot (via GitHub Actions)</div>
       </div>
-      <button class="btn blue" id="installBtn" style="display:none;">Install</button>
     </div>
+    <button class="btn blue" id="installBtn" style="display:none;">Install</button>
+  </div>
 
-    <div class="row" style="margin-top:10px;">
+  <div class="wrap">
+    <div class="row" style="margin-top:6px;margin-bottom:10px;">
       <div class="pill" style="flex:1 1 420px;">
         Spot: <strong id="spotText">—</strong>
         <span class="tiny" id="spotMeta"></span>
@@ -207,546 +161,640 @@
     <section class="card half">
       <h2>Spot settings <span>auto + manual fallback</span></h2>
 
-      <div class="minirow">
+      <div class="two">
         <div>
           <label>Gold spot (USD / troy oz)</label>
-          <input id="goldSpot" inputmode="decimal" placeholder="e.g. 2350.50" />
+          <input inputmode="decimal" id="goldSpot" placeholder="e.g. 2350.50">
         </div>
         <div>
           <label>Silver spot (USD / troy oz)</label>
-          <input id="silverSpot" inputmode="decimal" placeholder="e.g. 29.80" />
+          <input inputmode="decimal" id="silverSpot" placeholder="e.g. 29.80">
         </div>
       </div>
 
-      <div class="chips">
-        <div class="chip" data-discount="0">Use 100% spot</div>
-        <div class="chip" data-discount="10">Use <strong>−10%</strong></div>
-        <div class="chip" data-discount="20">Use <strong>−20%</strong></div>
+      <div class="row" style="margin-top:12px;">
+        <button class="btn" id="use100Btn">Use 100% spot</button>
+        <button class="btn" id="use10Btn">Use −10%</button>
+        <button class="btn" id="use20Btn">Use −20%</button>
       </div>
 
       <div class="hr"></div>
 
-      <div class="minirow">
+      <div class="two">
         <div>
           <label>Currency</label>
           <select id="currency">
             <option value="USD" selected>USD</option>
           </select>
-          <div class="tiny">Spot feed is USD-only in this build.</div>
+          <div class="help" style="margin-top:6px;">
+            Auto-spot feed is <b>USD-only</b>. If it fails, you can type spot manually.
+          </div>
         </div>
         <div>
           <label>Last spot update</label>
-          <input id="lastUpdate" disabled />
+          <input id="lastSpot" readonly placeholder="—">
         </div>
       </div>
 
-      <div class="footer">
-        <span class="tiny">If spot auto-fetch fails (CORS), the app uses cached/manual values.</span>
+      <div class="help" style="margin-top:10px;">
+        If auto update fails: open <code>/spot.json</code> on your site to confirm it has prices.
       </div>
     </section>
 
-    <!-- AUCTION FEES -->
+    <!-- AUCTION TERMS -->
     <section class="card half">
       <h2>Auction terms <span>BP + tax + ship</span></h2>
 
-      <div class="minirow">
+      <div class="two">
         <div>
-          <label>Buyer's premium (%)</label>
-          <input id="bpPct" inputmode="decimal" placeholder="e.g. 15" />
+          <label>Buyer’s premium (%)</label>
+          <input inputmode="decimal" id="bp" placeholder="e.g. 18">
         </div>
         <div>
           <label>Sales tax (%)</label>
-          <input id="taxPct" inputmode="decimal" placeholder="e.g. 7" />
+          <input inputmode="decimal" id="tax" placeholder="e.g. 7.8">
         </div>
-        <div>
-          <label>Shipping/handling ($)</label>
-          <input id="shipAmt" inputmode="decimal" placeholder="e.g. 18.50" />
+      </div>
+
+      <div style="margin-top:12px;">
+        <label>Shipping/handling ($)</label>
+        <input inputmode="decimal" id="ship" placeholder="e.g. 25">
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="help">
+        <b>Max bid math:</b> You tell HammerBid what you’re willing to pay <i>all-in</i> (or what profit you need),
+        and it returns the <b>maximum hammer</b> you can bid so your total stays within that limit.
+      </div>
+    </section>
+
+    <!-- MODE -->
+    <section class="card">
+      <h2>Mode <span>metals / bullion / numismatic / jewelry</span></h2>
+      <div class="modeTabs">
+        <button class="tab active" data-mode="melt">Melt / scrap</button>
+        <button class="tab" data-mode="bullion">Bullion</button>
+        <button class="tab" data-mode="numis">Numismatic</button>
+        <button class="tab" data-mode="jewelry">Jewelry</button>
+      </div>
+
+      <!-- Melt/Scrap -->
+      <div id="mode_melt" style="margin-top:14px;">
+        <div class="three">
+          <div>
+            <label>Metal</label>
+            <select id="meltMetal">
+              <option value="gold">Gold</option>
+              <option value="silver" selected>Silver</option>
+            </select>
+          </div>
+          <div>
+            <label>Purity</label>
+            <select id="purity">
+              <option value="0.999">.999 fine</option>
+              <option value="0.925">.925 sterling</option>
+              <option value="0.900">.900 (coin silver)</option>
+              <option value="0.835">.835</option>
+              <option value="0.800">.800</option>
+              <option value="0.585">14k (0.585)</option>
+              <option value="0.750">18k (0.750)</option>
+              <option value="0.9167">22k (0.9167)</option>
+            </select>
+          </div>
+          <div>
+            <label>Weight unit</label>
+            <select id="wtUnit">
+              <option value="g" selected>grams (g)</option>
+              <option value="ozt">troy oz (ozt)</option>
+              <option value="oz">avoir oz (oz)</option>
+              <option value="dwt">pennyweight (dwt)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="two" style="margin-top:12px;">
+          <div>
+            <label>Total weight</label>
+            <input inputmode="decimal" id="weight" placeholder="e.g. 10.2">
+          </div>
+          <div>
+            <label>Refining fee / loss (%) (optional)</label>
+            <input inputmode="decimal" id="refineLoss" placeholder="e.g. 2">
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="two">
+          <div>
+            <label>Your all-in budget ($)</label>
+            <input inputmode="decimal" id="budgetAllIn" placeholder="e.g. 500">
+            <div class="help" style="margin-top:6px;">
+              If you enter a budget here, HammerBid gives a <b>max hammer</b>.
+            </div>
+          </div>
+          <div>
+            <label>OR required profit ($)</label>
+            <input inputmode="decimal" id="profitNeed" placeholder="e.g. 50">
+            <div class="help" style="margin-top:6px;">
+              If you enter profit, it assumes you want to clear that profit <b>after fees</b>.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bullion -->
+      <div id="mode_bullion" style="display:none;margin-top:14px;">
+        <div class="three">
+          <div>
+            <label>Metal</label>
+            <select id="bullionMetal">
+              <option value="silver" selected>Silver</option>
+              <option value="gold">Gold</option>
+            </select>
+          </div>
+          <div>
+            <label>Fine weight (troy oz)</label>
+            <input inputmode="decimal" id="bullionOzt" placeholder="e.g. 1">
+          </div>
+          <div>
+            <label>Premium over melt ($) (optional)</label>
+            <input inputmode="decimal" id="bullionPrem" placeholder="e.g. 4.00">
+          </div>
+        </div>
+
+        <div class="two" style="margin-top:12px;">
+          <div>
+            <label>Your all-in budget ($)</label>
+            <input inputmode="decimal" id="bullionBudget" placeholder="e.g. 40">
+          </div>
+          <div>
+            <label>OR required profit ($)</label>
+            <input inputmode="decimal" id="bullionProfitNeed" placeholder="e.g. 5">
+          </div>
+        </div>
+      </div>
+
+      <!-- Numismatic -->
+      <div id="mode_numis" style="display:none;margin-top:14px;">
+        <div class="two">
+          <div>
+            <label>Current hammer ($)</label>
+            <input inputmode="decimal" id="numisHammer" placeholder="e.g. 2475">
+          </div>
+          <div>
+            <label>Expected resale (eBay sold) ($)</label>
+            <input inputmode="decimal" id="numisResale" placeholder="e.g. 3000">
+          </div>
+        </div>
+
+        <div class="two" style="margin-top:12px;">
+          <div>
+            <label>eBay/marketplace fee (%)</label>
+            <input inputmode="decimal" id="numisFeePct" placeholder="e.g. 13.25">
+          </div>
+          <div>
+            <label>Other selling costs ($)</label>
+            <input inputmode="decimal" id="numisOther" placeholder="e.g. 20">
+          </div>
+        </div>
+
+        <div class="help" style="margin-top:10px;">
+          Shows <b>net profit</b> at the entered hammer, after BP/tax/ship and selling fees.
+        </div>
+      </div>
+
+      <!-- Jewelry -->
+      <div id="mode_jewelry" style="display:none;margin-top:14px;">
+        <div class="three">
+          <div>
+            <label>Metal</label>
+            <select id="jMetal">
+              <option value="gold" selected>Gold</option>
+              <option value="silver">Silver</option>
+            </select>
+          </div>
+          <div>
+            <label>Purity</label>
+            <select id="jPurity">
+              <option value="0.585" selected>14k (0.585)</option>
+              <option value="0.750">18k (0.750)</option>
+              <option value="0.9167">22k (0.9167)</option>
+              <option value="0.925">.925 sterling</option>
+            </select>
+          </div>
+          <div>
+            <label>Total weight (g)</label>
+            <input inputmode="decimal" id="jWeightG" placeholder="e.g. 10.2">
+          </div>
+        </div>
+
+        <div class="two" style="margin-top:12px;">
+          <div>
+            <label>Estimated stone value ($) (optional)</label>
+            <input inputmode="decimal" id="stoneValue" placeholder="e.g. 200">
+          </div>
+          <div>
+            <label>Budget all-in ($)</label>
+            <input inputmode="decimal" id="jBudget" placeholder="e.g. 800">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section class="card">
+      <h2>Results <span>updates instantly</span></h2>
+
+      <div class="kpi">
+        <div class="stat">
+          <div class="t">Melt value ($)</div>
+          <div class="v" id="meltVal">—</div>
+        </div>
+        <div class="stat">
+          <div class="t">All-in cost at hammer ($)</div>
+          <div class="v" id="allInAtHammer">—</div>
+        </div>
+        <div class="stat">
+          <div class="t">Max hammer allowed ($)</div>
+          <div class="v" id="maxHammer">—</div>
+        </div>
+        <div class="stat">
+          <div class="t">Net profit (numismatic) ($)</div>
+          <div class="v" id="netProfit">—</div>
         </div>
       </div>
 
       <div class="hr"></div>
 
-      <div class="minirow">
-        <div>
-          <label>Target profit (net) ($)</label>
-          <input id="targetProfit" inputmode="decimal" placeholder="e.g. 200" />
-        </div>
-        <div>
-          <label>eBay + payment fees (%)</label>
-          <input id="ebayFeePct" inputmode="decimal" placeholder="e.g. 13.25" />
-          <div class="tiny">Use your “all-in” rate (eBay + payment processing).</div>
-        </div>
-        <div>
-          <label>Seller fixed fee ($)</label>
-          <input id="fixedSellFee" inputmode="decimal" placeholder="e.g. 0.40" />
-          <div class="tiny">Optional (listing/order fee etc.)</div>
-        </div>
-      </div>
-
-      <div class="footer">
-        <span class="tiny mono">Total cost = hammer × (1+BP) × (1+tax) + shipping</span>
+      <div class="help" id="notes">
+        Tip: Set BP/tax/ship first. Then use “Use −10% / −20%” for your melt-buy targets.
       </div>
     </section>
 
-    <!-- MELT: US 90% SILVER -->
-    <section class="card third">
-      <h2>Melt: US 90% silver <span>face → melt</span></h2>
-      <label>Face value ($)</label>
-      <input id="fv90" inputmode="decimal" placeholder="e.g. 10 (=$10 FV)" />
-
-      <label>Silver content ($1 FV = troy oz)</label>
-      <select id="ozPerDollar90">
-        <option value="0.715" selected>0.715 (typical worn)</option>
-        <option value="0.7234">0.7234 (theoretical)</option>
-      </select>
-
-      <div class="out">
-        <div class="stat">
-          <div class="k">ASW (troy oz)</div>
-          <div class="v mono" id="asw90">—</div>
-        </div>
-        <div class="stat">
-          <div class="k">Melt value ($)</div>
-          <div class="v mono" id="melt90">—</div>
-        </div>
-      </div>
-      <div class="tiny">Uses your current Silver spot input (after any discount button).</div>
-    </section>
-
-    <!-- MELT: US 90% GOLD (general jewelry-ish calculator via karat) -->
-    <section class="card third">
-      <h2>Melt: gold by karat <span>grams → melt</span></h2>
-      <div class="minirow">
-        <div>
-          <label>Weight (grams)</label>
-          <input id="goldGrams" inputmode="decimal" placeholder="e.g. 10.2" />
-        </div>
-        <div>
-          <label>Karat</label>
-          <select id="goldKarat">
-            <option value="10">10k</option>
-            <option value="12">12k</option>
-            <option value="14" selected>14k</option>
-            <option value="18">18k</option>
-            <option value="22">22k</option>
-            <option value="24">24k</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="out">
-        <div class="stat">
-          <div class="k">Fine gold (troy oz)</div>
-          <div class="v mono" id="agwGold">—</div>
-        </div>
-        <div class="stat">
-          <div class="k">Melt value ($)</div>
-          <div class="v mono" id="meltGold">—</div>
-        </div>
-      </div>
-
-      <div class="tiny">Uses 31.1034768 g per troy oz.</div>
-    </section>
-
-    <!-- SILVER BULLION -->
-    <section class="card third">
-      <h2>Melt: silver bullion <span>oz → melt</span></h2>
-      <label>Silver weight (troy oz)</label>
-      <input id="silverOz" inputmode="decimal" placeholder="e.g. 1, 10, 100" />
-
-      <div class="out">
-        <div class="stat">
-          <div class="k">Melt value ($)</div>
-          <div class="v mono" id="meltBullion">—</div>
-        </div>
-        <div class="stat">
-          <div class="k">At −10% / −20%</div>
-          <div class="v mono" id="meltBullionDisc">—</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- AUCTION MAX BID (melt-driven) -->
-    <section class="card half">
-      <h2>Auction: max hammer bid <span>based on expected resale</span></h2>
-
-      <label>Expected sell price on eBay ($)</label>
-      <input id="expectedSell" inputmode="decimal" placeholder="e.g. 900" />
-
-      <div class="out">
-        <div class="stat">
-          <div class="k">Net proceeds after fees ($)</div>
-          <div class="v mono" id="netProceeds">—</div>
-        </div>
-        <div class="stat">
-          <div class="k">Max hammer to hit target profit ($)</div>
-          <div class="v mono" id="maxHammer">—</div>
-        </div>
-      </div>
-
-      <div class="tiny">
-        Formula: net proceeds = sell × (1 − fee%) − fixed fee. Then solve for hammer such that
-        net proceeds − (hammer × (1+BP) × (1+tax) + ship) = target profit.
-      </div>
-    </section>
-
-    <!-- NUMISMATIC MODE -->
-    <section class="card half">
-      <h2>Numismatic mode <span>profit at current hammer</span></h2>
-
-      <div class="minirow">
-        <div>
-          <label>Current hammer bid ($)</label>
-          <input id="currentHammer" inputmode="decimal" placeholder="e.g. 700" />
-        </div>
-        <div>
-          <label>Your planned sell price ($)</label>
-          <input id="numiSell" inputmode="decimal" placeholder="e.g. 950" />
-        </div>
-        <div>
-          <label>Grading / shipping / misc cost ($)</label>
-          <input id="numiExtra" inputmode="decimal" placeholder="e.g. 55" />
-        </div>
-      </div>
-
-      <div class="out">
-        <div class="stat">
-          <div class="k">Your all-in cost ($)</div>
-          <div class="v mono" id="numiAllIn">—</div>
-        </div>
-        <div class="stat">
-          <div class="k">Estimated net profit ($)</div>
-          <div class="v mono" id="numiProfit">—</div>
-        </div>
-      </div>
-
-      <div class="tiny">Uses the same BP/tax/shipping + eBay fee settings above.</div>
-    </section>
-
-  </div>
-
-  <div class="footer" style="margin-top:16px;">
-    <div class="tiny">Tip: Add to Home Screen after first load so it runs like an app.</div>
-    <div class="tiny">HammerBid stores your last inputs locally on your phone.</div>
   </div>
 </main>
 
+<div class="toast" id="toast"><b>OK</b><span id="toastMsg"></span></div>
+
 <script>
 /* ==========================
-   HammerBid — full single-file app
-   ========================== */
-
-const $ = (id) => document.getElementById(id);
-
-const STORAGE_KEY = "hammerbid_v1";
-const TROY_OZ_PER_GRAM = 1 / 31.1034768;
-
-const DEFAULTS = {
-  goldSpot: "",
-  silverSpot: "",
-  bpPct: "15",
-  taxPct: "7",
-  shipAmt: "0",
-  targetProfit: "200",
-  ebayFeePct: "13.25",
-  fixedSellFee: "0.40",
-  fv90: "",
-  ozPerDollar90: "0.715",
-  goldGrams: "",
-  goldKarat: "14",
-  silverOz: "",
-  expectedSell: "",
-  currentHammer: "",
-  numiSell: "",
-  numiExtra: "0",
-  lastUpdate: "",
-  discountMode: "0"
+   Utilities
+========================== */
+const $ = (id)=>document.getElementById(id);
+const fmt = (n)=> (isFinite(n) ? n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) : "—");
+const num = (v)=> {
+  if (v===null || v===undefined) return NaN;
+  const s = String(v).replace(/[$, ]/g,'').trim();
+  const n = parseFloat(s);
+  return isFinite(n) ? n : NaN;
+};
+const toast = (msg, ok=true)=>{
+  const t=$("toast"); $("toastMsg").textContent=msg;
+  t.querySelector("b").textContent = ok ? "OK" : "Note";
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"), 2600);
+};
+const save = ()=>{
+  const ids = [
+    "goldSpot","silverSpot","bp","tax","ship",
+    "meltMetal","purity","wtUnit","weight","refineLoss","budgetAllIn","profitNeed",
+    "bullionMetal","bullionOzt","bullionPrem","bullionBudget","bullionProfitNeed",
+    "numisHammer","numisResale","numisFeePct","numisOther",
+    "jMetal","jPurity","jWeightG","stoneValue","jBudget",
+    "currency"
+  ];
+  const obj={};
+  ids.forEach(id=>{ const el=$(id); if(el) obj[id]=el.value; });
+  obj.mode = state.mode;
+  localStorage.setItem("hammerbid_v1", JSON.stringify(obj));
+};
+const load = ()=>{
+  try{
+    const obj=JSON.parse(localStorage.getItem("hammerbid_v1")||"{}");
+    Object.entries(obj).forEach(([k,v])=>{
+      if(k==="mode") return;
+      const el=$(k); if(el && v!==undefined) el.value=v;
+    });
+    if(obj.mode) setMode(obj.mode);
+  }catch(e){}
 };
 
-// Spot feed (may fail due to CORS on some networks)
-const SPOT_URL = "https://api.metals.live/v1/spot";
-
-function toNum(v){
-  if (v === null || v === undefined) return 0;
-  const s = String(v).replace(/,/g,"").trim();
-  const n = Number(s);
-  return Number.isFinite(n) ? n : 0;
-}
-function fmt(n){
-  if (!Number.isFinite(n)) return "—";
-  return n.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
-}
-function fmt0(n){
-  if (!Number.isFinite(n)) return "—";
-  return n.toLocaleString(undefined, {maximumFractionDigits:4});
-}
-
-function loadState(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return {...DEFAULTS};
-    const obj = JSON.parse(raw);
-    return {...DEFAULTS, ...obj};
-  }catch{
-    return {...DEFAULTS};
-  }
-}
-function saveState(){
-  const st = {};
-  for (const k of Object.keys(DEFAULTS)){
-    const el = $(k);
-    if (!el) continue;
-    st[k] = el.value;
-  }
-  st.discountMode = state.discountMode;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(st));
-}
-function applyState(){
-  for (const k of Object.keys(DEFAULTS)){
-    const el = $(k);
-    if (!el) continue;
-    el.value = state[k] ?? DEFAULTS[k];
-  }
-  state.discountMode = state.discountMode ?? DEFAULTS.discountMode;
-}
-
-function setSpotStatus(main, meta=""){
-  $("spotText").textContent = main;
-  $("spotMeta").textContent = meta ? ` • ${meta}` : "";
-}
-
-function getDiscountedSpot(base, discountPct){
-  return base * (1 - (discountPct/100));
-}
-
-// Attempts live fetch, else cached/manual
-async function fetchSpotUSD(){
-  const r = await fetch(SPOT_URL, { cache: "no-store" });
-  if (!r.ok) throw new Error("HTTP " + r.status);
-  const data = await r.json();
-
-  const item = data?.items?.[0];
-  const gold = Number(item?.xauPrice);
-  const silver = Number(item?.xagPrice);
-
-  if (!Number.isFinite(gold) || !Number.isFinite(silver)) {
-    throw new Error("Bad JSON shape");
-  }
-
-  localStorage.setItem("spot_gold_usd_oz", String(gold));
-  localStorage.setItem("spot_silver_usd_oz", String(silver));
-  localStorage.setItem("spot_last_updated", new Date().toISOString());
-  return { gold, silver, date: data?.date || null };
-}
-function getCachedSpot(){
-  const gold = Number(localStorage.getItem("spot_gold_usd_oz"));
-  const silver = Number(localStorage.getItem("spot_silver_usd_oz"));
-  const last = localStorage.getItem("spot_last_updated");
-  return {
-    gold: Number.isFinite(gold) ? gold : null,
-    silver: Number.isFinite(silver) ? silver : null,
-    last: last || null,
-  };
-}
-
-function compute(){
-  // Read inputs
-  const discountPct = toNum(state.discountMode);
-
-  const goldSpotBase = toNum($("goldSpot").value);
-  const silverSpotBase = toNum($("silverSpot").value);
-  const goldSpot = getDiscountedSpot(goldSpotBase, discountPct);
-  const silverSpot = getDiscountedSpot(silverSpotBase, discountPct);
-
-  const bp = toNum($("bpPct").value) / 100;
-  const tax = toNum($("taxPct").value) / 100;
-  const ship = toNum($("shipAmt").value);
-
-  const targetProfit = toNum($("targetProfit").value);
-
-  const feePct = toNum($("ebayFeePct").value) / 100;
-  const fixedFee = toNum($("fixedSellFee").value);
-
-  // Melt: 90% silver
-  const fv90 = toNum($("fv90").value);
-  const ozPerDollar90 = toNum($("ozPerDollar90").value);
-  const asw90 = fv90 * ozPerDollar90;
-  const melt90 = asw90 * silverSpot;
-
-  $("asw90").textContent = fv90 > 0 ? fmt0(asw90) : "—";
-  $("melt90").textContent = (fv90 > 0 && silverSpot > 0) ? `$${fmt(melt90)}` : "—";
-
-  // Melt: gold by karat
-  const grams = toNum($("goldGrams").value);
-  const karat = toNum($("goldKarat").value);
-  const purity = karat / 24;
-  const fineGoldOz = grams * purity * TROY_OZ_PER_GRAM;
-  const meltGold = fineGoldOz * goldSpot;
-
-  $("agwGold").textContent = grams > 0 ? fmt0(fineGoldOz) : "—";
-  $("meltGold").textContent = (grams > 0 && goldSpot > 0) ? `$${fmt(meltGold)}` : "—";
-
-  // Melt: silver bullion
-  const silverOz = toNum($("silverOz").value);
-  const meltBullion = silverOz * silverSpot;
-  const meltBullion10 = silverOz * getDiscountedSpot(silverSpotBase, 10);
-  const meltBullion20 = silverOz * getDiscountedSpot(silverSpotBase, 20);
-
-  $("meltBullion").textContent = (silverOz > 0 && silverSpot > 0) ? `$${fmt(meltBullion)}` : "—";
-  $("meltBullionDisc").textContent =
-    (silverOz > 0 && silverSpotBase > 0) ? `-10% $${fmt(meltBullion10)} • -20% $${fmt(meltBullion20)}` : "—";
-
-  // Auction max hammer from expected sell
-  const expectedSell = toNum($("expectedSell").value);
-  const netProceeds = expectedSell * (1 - feePct) - fixedFee;
-
-  $("netProceeds").textContent = expectedSell > 0 ? `$${fmt(netProceeds)}` : "—";
-
-  // Solve for hammer:
-  // netProceeds - (hammer*(1+bp)*(1+tax) + ship) = targetProfit
-  // hammer = (netProceeds - ship - targetProfit) / ((1+bp)*(1+tax))
-  const denom = (1 + bp) * (1 + tax);
-  let maxHammer = (netProceeds - ship - targetProfit) / (denom || 1);
-
-  if (!Number.isFinite(maxHammer)) maxHammer = 0;
-
-  $("maxHammer").textContent =
-    (expectedSell > 0 && denom > 0) ? `$${fmt(Math.max(0, maxHammer))}` : "—";
-
-  // Numismatic mode
-  const currentHammer = toNum($("currentHammer").value);
-  const numiSell = toNum($("numiSell").value);
-  const numiExtra = toNum($("numiExtra").value);
-
-  const allIn = currentHammer * denom + ship + numiExtra;
-  const numiNet = numiSell * (1 - feePct) - fixedFee;
-  const profit = numiNet - allIn;
-
-  $("numiAllIn").textContent = currentHammer > 0 ? `$${fmt(allIn)}` : "—";
-  const profitEl = $("numiProfit");
-  if (currentHammer > 0 && numiSell > 0){
-    profitEl.textContent = `${profit >= 0 ? "+":"-"}$${fmt(Math.abs(profit))}`;
-    profitEl.className = "v mono " + (profit >= 0 ? "good" : "bad");
-  } else {
-    profitEl.textContent = "—";
-    profitEl.className = "v mono";
-  }
-
-  // Spot meta
-  const mode = discountPct > 0 ? `using −${discountPct}%` : "using spot";
-  if (goldSpotBase>0 && silverSpotBase>0){
-    setSpotStatus(`Gold $${fmt(goldSpot)} • Silver $${fmt(silverSpot)}`, mode);
-  } else {
-    setSpotStatus("Enter spot or refresh", mode);
-  }
-
-  // Persist
-  saveState();
-}
+/* ==========================
+   Spot via spot.json (same-origin)
+========================== */
+const state = {
+  mode:"melt",
+  spot:{ gold:NaN, silver:NaN, source:"", updated:"" },
+  discount:1.0
+};
 
 async function refreshSpot(){
-  $("refreshSpotBtn").disabled = true;
-  $("refreshSpotBtn").textContent = "Refreshing…";
+  $("statusDot").style.background = "var(--warn)";
+  $("spotMeta").textContent = " (refreshing…)";
   try{
-    const { gold, silver } = await fetchSpotUSD();
-    $("goldSpot").value = gold.toFixed(2);
-    $("silverSpot").value = silver.toFixed(2);
-    const now = new Date().toLocaleString();
-    $("lastUpdate").value = now;
-    state.lastUpdate = now;
-    setSpotStatus(`Gold $${fmt(gold)} • Silver $${fmt(silver)}`, "live");
-  }catch(e){
-    const c = getCachedSpot();
-    if (c.gold && c.silver){
-      $("goldSpot").value = Number(c.gold).toFixed(2);
-      $("silverSpot").value = Number(c.silver).toFixed(2);
-      const last = c.last ? new Date(c.last).toLocaleString() : "cached";
-      $("lastUpdate").value = last;
-      state.lastUpdate = last;
-      setSpotStatus(`Gold $${fmt(c.gold)} • Silver $${fmt(c.silver)}`, "cached");
-    } else {
-      setSpotStatus("Spot update failed", "manual mode");
-      alert("Spot update failed (blocked by the data source). Your app is fine — enter spot manually or we’ll switch to another feed.");
-      // leave user values untouched
+    // cache-bust so you always fetch latest
+    const url = "spot.json?cb=" + Date.now();
+    const res = await fetch(url, { cache:"no-store" });
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const j = await res.json();
+
+    const g = num(j.gold_usd_oz);
+    const s = num(j.silver_usd_oz);
+
+    if(!isFinite(g) || !isFinite(s)){
+      throw new Error("spot.json has null/invalid prices");
     }
-  } finally {
-    $("refreshSpotBtn").disabled = false;
-    $("refreshSpotBtn").textContent = "Refresh spot";
-    compute();
+
+    state.spot = { gold:g, silver:s, source: j.source||"spot.json", updated: j.updated_utc||"" };
+    // apply discount to displayed/used spot
+    applyDiscount(state.discount, true);
+
+    $("lastSpot").value = state.spot.updated || new Date().toISOString();
+    $("statusDot").style.background = "var(--good)";
+    $("spotMeta").textContent = ` • ${state.spot.source}`;
+    toast("Spot updated");
+  }catch(err){
+    $("statusDot").style.background = "var(--bad)";
+    $("spotMeta").textContent = " • auto spot failed";
+    toast("Spot update failed — enter spot manually (or fix spot.json)", false);
+    console.warn(err);
+  }finally{
+    renderSpotText();
+    computeAll();
   }
 }
 
-function resetAll(){
-  localStorage.removeItem(STORAGE_KEY);
-  // leave cached spot keys alone; those are useful
-  state = loadState();
-  applyState();
-  compute();
+function renderSpotText(){
+  const g = num($("goldSpot").value);
+  const s = num($("silverSpot").value);
+  let parts=[];
+  if(isFinite(g)) parts.push(`Gold $${fmt(g)}`);
+  if(isFinite(s)) parts.push(`Silver $${fmt(s)}`);
+  $("spotText").textContent = parts.length ? parts.join(" • ") : "—";
 }
 
-function wireInputs(){
-  const ids = Object.keys(DEFAULTS).filter(k => $(k));
-  for(const id of ids){
-    $(id).addEventListener("input", compute);
-    $(id).addEventListener("change", compute);
+/* discount applies to *inputs* and stored base spot */
+function applyDiscount(mult, fromAuto=false){
+  state.discount = mult;
+  const gBase = state.spot.gold;
+  const sBase = state.spot.silver;
+  if(fromAuto && isFinite(gBase) && isFinite(sBase)){
+    $("goldSpot").value = fmt(gBase*mult);
+    $("silverSpot").value = fmt(sBase*mult);
+    renderSpotText();
+    save();
+    return;
   }
-
-  document.querySelectorAll(".chip").forEach(ch => {
-    ch.addEventListener("click", () => {
-      const d = ch.getAttribute("data-discount");
-      state.discountMode = d;
-      compute();
-    });
-  });
-
-  $("refreshSpotBtn").addEventListener("click", refreshSpot);
-  $("resetBtn").addEventListener("click", resetAll);
+  // manual inputs: just scale existing inputs
+  const g = num($("goldSpot").value);
+  const s = num($("silverSpot").value);
+  if(isFinite(g)) $("goldSpot").value = fmt(g*mult);
+  if(isFinite(s)) $("silverSpot").value = fmt(s*mult);
+  renderSpotText();
+  save();
 }
 
-let state = loadState();
+/* ==========================
+   Conversions + Auction math
+========================== */
+function gramsToTroyOz(g){ return g / 31.1034768; }
+function ozAvoirToTroyOz(oz){ return oz * 0.9114583333; }
+function dwtToTroyOz(dwt){ return dwt / 20.0; } // 20 dwt per troy oz
+function weightToTroyOz(value, unit){
+  const w = num(value);
+  if(!isFinite(w)) return NaN;
+  if(unit==="g") return gramsToTroyOz(w);
+  if(unit==="ozt") return w;
+  if(unit==="oz") return ozAvoirToTroyOz(w);
+  if(unit==="dwt") return dwtToTroyOz(w);
+  return NaN;
+}
 
-(function init(){
-  applyState();
-  wireInputs();
+// total cost from hammer
+function allInFromHammer(hammer){
+  const bp = num($("bp").value)/100;
+  const tx = num($("tax").value)/100;
+  const ship = num($("ship").value);
+  const h = num(hammer);
+  if(!isFinite(h)) return NaN;
+  const subtotal = h * (1 + (isFinite(bp)?bp:0));
+  const taxed = subtotal * (1 + (isFinite(tx)?tx:0));
+  return taxed + (isFinite(ship)?ship:0);
+}
 
-  // set lastUpdate input
-  $("lastUpdate").value = state.lastUpdate || "";
+// max hammer from all-in budget
+function hammerFromAllIn(allIn){
+  const bp = num($("bp").value)/100;
+  const tx = num($("tax").value)/100;
+  const ship = num($("ship").value);
+  const A = num(allIn);
+  if(!isFinite(A)) return NaN;
+  const shipv = isFinite(ship)?ship:0;
+  const denom = (1 + (isFinite(bp)?bp:0)) * (1 + (isFinite(tx)?tx:0));
+  const h = (A - shipv) / denom;
+  return h;
+}
 
-  // Try to populate from cached spot on first load if empty
-  const cached = getCachedSpot();
-  if ((!toNum($("goldSpot").value) || !toNum($("silverSpot").value)) && cached.gold && cached.silver){
-    $("goldSpot").value = Number(cached.gold).toFixed(2);
-    $("silverSpot").value = Number(cached.silver).toFixed(2);
-    const last = cached.last ? new Date(cached.last).toLocaleString() : "";
-    $("lastUpdate").value = last;
-    state.lastUpdate = last;
+/* ==========================
+   Mode switching
+========================== */
+function setMode(m){
+  state.mode = m;
+  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active", b.dataset.mode===m));
+  ["melt","bullion","numis","jewelry"].forEach(x=>{
+    $("mode_"+x).style.display = (x===m) ? "block" : "none";
+  });
+  save();
+  computeAll();
+}
+document.querySelectorAll(".tab").forEach(btn=>{
+  btn.addEventListener("click", ()=>setMode(btn.dataset.mode));
+});
+
+/* ==========================
+   Core computations
+========================== */
+function computeMeltValue(){
+  const gSpot = num($("goldSpot").value);
+  const sSpot = num($("silverSpot").value);
+
+  let melt = NaN;
+
+  if(state.mode==="melt"){
+    const metal = $("meltMetal").value;
+    const purity = num($("purity").value);
+    const ozt = weightToTroyOz($("weight").value, $("wtUnit").value);
+    const lossPct = num($("refineLoss").value)/100;
+    const spot = (metal==="gold") ? gSpot : sSpot;
+    if(isFinite(spot) && isFinite(purity) && isFinite(ozt)){
+      melt = spot * purity * ozt;
+      if(isFinite(lossPct) && lossPct>0) melt *= (1 - lossPct);
+    }
   }
 
-  compute();
-  // Optional: auto-refresh spot once on load (safe, but might fail on some networks)
-  refreshSpot();
-
-  // Register Service Worker
-  if ("serviceWorker" in navigator){
-    navigator.serviceWorker.register("./sw.js").catch(()=>{});
+  if(state.mode==="bullion"){
+    const metal = $("bullionMetal").value;
+    const ozt = num($("bullionOzt").value);
+    const prem = num($("bullionPrem").value);
+    const spot = (metal==="gold") ? gSpot : sSpot;
+    if(isFinite(spot) && isFinite(ozt)){
+      melt = spot * ozt + (isFinite(prem)?prem:0);
+    }
   }
 
-  // Install prompt
-  let deferredPrompt = null;
-  window.addEventListener("beforeinstallprompt", (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    $("installBtn").style.display = "inline-block";
+  if(state.mode==="jewelry"){
+    const metal = $("jMetal").value;
+    const purity = num($("jPurity").value);
+    const wG = num($("jWeightG").value);
+    const stone = num($("stoneValue").value);
+    const spot = (metal==="gold") ? gSpot : sSpot;
+    if(isFinite(spot) && isFinite(purity) && isFinite(wG)){
+      melt = spot * purity * gramsToTroyOz(wG) + (isFinite(stone)?stone:0);
+    }
+  }
+
+  return melt;
+}
+
+function computeAll(){
+  renderSpotText();
+
+  const melt = computeMeltValue();
+  $("meltVal").textContent = isFinite(melt) ? "$" + fmt(melt) : "—";
+
+  // all-in at entered hammer (numis)
+  const hNumis = num($("numisHammer").value);
+  const allInAtH = isFinite(hNumis) ? allInFromHammer(hNumis) : NaN;
+  $("allInAtHammer").textContent = isFinite(allInAtH) ? "$" + fmt(allInAtH) : "—";
+
+  // max hammer (varies by mode)
+  let maxHammer = NaN;
+  let notes = "";
+
+  if(state.mode==="melt"){
+    const budget = num($("budgetAllIn").value);
+    const profitNeed = num($("profitNeed").value);
+
+    if(isFinite(budget)){
+      maxHammer = hammerFromAllIn(budget);
+      notes = "Max hammer computed from your all-in budget.";
+    } else if(isFinite(melt) && isFinite(profitNeed)){
+      // need profit after fees: require all-in <= melt - profitNeed
+      const targetAllIn = melt - profitNeed;
+      maxHammer = hammerFromAllIn(targetAllIn);
+      notes = "Max hammer computed from melt minus your required profit (after fees).";
+    } else if(isFinite(melt)){
+      notes = "Enter an all-in budget or a required profit to compute max hammer.";
+    }
+  }
+
+  if(state.mode==="bullion"){
+    const budget = num($("bullionBudget").value);
+    const profitNeed = num($("bullionProfitNeed").value);
+    if(isFinite(budget)){
+      maxHammer = hammerFromAllIn(budget);
+      notes = "Max hammer computed from your all-in budget.";
+    } else if(isFinite(melt) && isFinite(profitNeed)){
+      const targetAllIn = melt - profitNeed;
+      maxHammer = hammerFromAllIn(targetAllIn);
+      notes = "Max hammer computed from (melt+premium) minus required profit (after fees).";
+    } else if(isFinite(melt)){
+      notes = "Enter an all-in budget or a required profit to compute max hammer.";
+    }
+  }
+
+  if(state.mode==="jewelry"){
+    const budget = num($("jBudget").value);
+    if(isFinite(budget)){
+      maxHammer = hammerFromAllIn(budget);
+      notes = "Max hammer computed from your all-in budget.";
+    } else {
+      notes = "Enter your all-in budget to compute max hammer.";
+    }
+  }
+
+  if(state.mode==="numis"){
+    // net profit at current hammer: resale - selling fees - all-in
+    const resale = num($("numisResale").value);
+    const feePct = num($("numisFeePct").value)/100;
+    const other = num($("numisOther").value);
+    if(isFinite(resale) && isFinite(allInAtH)){
+      const fees = resale * (isFinite(feePct)?feePct:0) + (isFinite(other)?other:0);
+      const net = resale - fees - allInAtH;
+      $("netProfit").textContent = (isFinite(net)? (net>=0?`$${fmt(net)}`:`-$${fmt(Math.abs(net))}`) : "—");
+      $("netProfit").className = "v " + (net>=0 ? "good" : "badc");
+      notes = "Net profit is resale minus selling fees minus auction all-in cost.";
+    } else {
+      $("netProfit").textContent = "—";
+      $("netProfit").className = "v";
+      notes = "Enter hammer + expected resale to see net profit.";
+    }
+    $("maxHammer").textContent = "—";
+    $("notes").textContent = notes;
+    save();
+    return;
+  } else {
+    $("netProfit").textContent = "—";
+    $("netProfit").className = "v";
+  }
+
+  $("maxHammer").textContent = isFinite(maxHammer) ? "$" + fmt(Math.max(0,maxHammer)) : "—";
+  $("notes").textContent = notes || "Tip: Set BP/tax/ship first. Then use −10% / −20% for your melt-buy targets.";
+
+  save();
+}
+
+/* ==========================
+   Buttons + events
+========================== */
+$("refreshSpotBtn").addEventListener("click", refreshSpot);
+$("resetBtn").addEventListener("click", ()=>{
+  localStorage.removeItem("hammerbid_v1");
+  location.reload();
+});
+$("use100Btn").addEventListener("click", ()=>applyDiscount(1.0, true));
+$("use10Btn").addEventListener("click", ()=>applyDiscount(0.90, true));
+$("use20Btn").addEventListener("click", ()=>applyDiscount(0.80, true));
+
+// compute on input
+document.addEventListener("input", (e)=>{
+  if(e.target && (e.target.tagName==="INPUT" || e.target.tagName==="SELECT")){
+    computeAll();
+  }
+});
+
+/* ==========================
+   PWA install + Service Worker
+========================== */
+let deferredPrompt=null;
+window.addEventListener("beforeinstallprompt",(e)=>{
+  e.preventDefault();
+  deferredPrompt=e;
+  $("installBtn").style.display="inline-block";
+});
+$("installBtn").addEventListener("click", async ()=>{
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt=null;
+  $("installBtn").style.display="none";
+});
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>{
+    navigator.serviceWorker.register("sw.js").catch(console.warn);
   });
-  $("installBtn").addEventListener("click", async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    $("installBtn").style.display = "none";
-  });
-})();
+}
+
+/* ==========================
+   Init
+========================== */
+load();
+computeAll();
+// Try auto spot on load (quietly). If it fails, user can still enter spot.
+setTimeout(()=>refreshSpot(), 450);
 </script>
-
 </body>
 </html>
