@@ -14,14 +14,12 @@
     :root{
       --bg:#0b1220;
       --panel:#0f1a2e;
-      --panel2:#0c1528;
       --text:#e8eefc;
       --muted:#aab6d6;
       --line:rgba(255,255,255,.10);
       --good:#31c48d;
       --bad:#ff5a5f;
       --warn:#fbbf24;
-      --btn:#1b2a45;
       --blue:#3b82f6;
       --shadow: 0 12px 30px rgba(0,0,0,.35);
       --radius:18px;
@@ -33,7 +31,7 @@
       background: radial-gradient(1200px 700px at 10% 0%, #142346 0%, var(--bg) 60%);
       color:var(--text);
     }
-    .wrap{max-width:1200px;margin:0 auto;padding:18px}
+    .wrap{max-width:1250px;margin:0 auto;padding:18px}
     header{
       position:sticky;top:0;z-index:50;
       background: linear-gradient(to bottom, rgba(11,18,32,.98), rgba(11,18,32,.72));
@@ -65,6 +63,7 @@
     .btn:hover{background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06))}
     .btn.blue{border-color:rgba(59,130,246,.5); background: linear-gradient(180deg, rgba(59,130,246,.22), rgba(59,130,246,.10))}
     .btn.bad{border-color:rgba(255,90,95,.45); background: linear-gradient(180deg, rgba(255,90,95,.22), rgba(255,90,95,.10))}
+    .btn.green{border-color:rgba(49,196,141,.5); background: linear-gradient(180deg, rgba(49,196,141,.22), rgba(49,196,141,.10))}
     .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;margin-top:18px}
     .card{
       grid-column:span 12;
@@ -75,10 +74,8 @@
       padding:16px;
     }
     .half{grid-column:span 12}
-    .third{grid-column:span 12}
-    @media(min-width:900px){
+    @media(min-width:1000px){
       .half{grid-column:span 6}
-      .third{grid-column:span 4}
     }
     .card h2{
       margin:0 0 10px 0;
@@ -99,11 +96,12 @@
     input::placeholder{color:rgba(170,182,214,.7)}
     .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-    @media(max-width:900px){
-      .two,.three{grid-template-columns:1fr}
+    .four{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
+    @media(max-width:1000px){
+      .two,.three,.four{grid-template-columns:1fr}
     }
     .kpi{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    @media(min-width:900px){.kpi{grid-template-columns:1fr 1fr 1fr 1fr}}
+    @media(min-width:1000px){.kpi{grid-template-columns:1fr 1fr 1fr 1fr}}
     .stat{
       background: rgba(255,255,255,.05);
       border:1px solid var(--line);
@@ -116,12 +114,6 @@
     .badc{color:var(--bad)}
     .warn{color:var(--warn)}
     .hr{height:1px;background:var(--line);margin:12px 0}
-    .modeTabs{display:flex;gap:8px;flex-wrap:wrap}
-    .tab{
-      padding:9px 11px;border-radius:999px;border:1px solid var(--line);
-      background: rgba(255,255,255,.05);cursor:pointer;color:var(--text);font-size:13px;
-    }
-    .tab.active{border-color:rgba(59,130,246,.6); background: rgba(59,130,246,.18)}
     .help{color:var(--muted);font-size:12px;line-height:1.45}
     .toast{
       position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
@@ -150,12 +142,11 @@
     th{
       color:var(--muted);
       font-size:12px;
-      position:sticky;
-      top:0;
       background: rgba(11,18,32,.95);
     }
     tr:last-child td{border-bottom:none}
     .right{text-align:right}
+    .mono{font-variant-numeric:tabular-nums}
   </style>
 </head>
 
@@ -189,7 +180,6 @@
 <main class="wrap">
   <div class="grid">
 
-    <!-- SPOT SETTINGS -->
     <section class="card half">
       <h2>Spot settings <span>auto + manual fallback</span></h2>
 
@@ -224,13 +214,8 @@
           <input id="lastSpot" readonly placeholder="—">
         </div>
       </div>
-
-      <div class="help" style="margin-top:10px;">
-        Spot comes from your own <code>spot.json</code>, so no browser CORS issues.
-      </div>
     </section>
 
-    <!-- AUCTION TERMS -->
     <section class="card half">
       <h2>Auction terms <span>BP + tax + ship</span></h2>
 
@@ -253,16 +238,14 @@
       <div class="hr"></div>
 
       <div class="help">
-        All-in cost is calculated as:<br>
-        <strong>hammer × (1 + BP) × (1 + tax) + shipping</strong>
+        All-in cost = <strong>hammer × (1 + BP) × (1 + tax) + shipping</strong>
       </div>
     </section>
 
-    <!-- LIVE HAMMER BID CALCULATOR -->
     <section class="card">
       <h2>Live Hammer Bid Calculator <span>melt-based bidding</span></h2>
 
-      <div class="three">
+      <div class="four">
         <div>
           <label>Metal</label>
           <select id="calcMetal">
@@ -291,13 +274,13 @@
             <option value="dwt">pennyweight (dwt)</option>
           </select>
         </div>
-      </div>
-
-      <div class="three" style="margin-top:12px;">
         <div>
           <label>Weight</label>
           <input inputmode="decimal" id="calcWeight" placeholder="e.g. 10.2">
         </div>
+      </div>
+
+      <div class="three" style="margin-top:12px;">
         <div>
           <label>Desired profit ($)</label>
           <input inputmode="decimal" id="calcProfit" placeholder="e.g. 50">
@@ -306,6 +289,7 @@
           <label>Current hammer ($) — optional</label>
           <input inputmode="decimal" id="calcHammer" placeholder="e.g. 325">
         </div>
+        <div></div>
       </div>
 
       <div class="hr"></div>
@@ -328,14 +312,134 @@
           <div class="v" id="calcMargin">—</div>
         </div>
       </div>
+    </section>
 
-      <div class="help" style="margin-top:12px;">
-        If you enter a current hammer, the All-in and Profit Margin are based on that hammer.<br>
-        If you leave current hammer blank, they are based on the computed Max Hammer.
+    <section class="card half">
+      <h2>90% Silver Face Calculator <span>junk silver quick math</span></h2>
+
+      <div class="three">
+        <div>
+          <label>Face value ($)</label>
+          <input inputmode="decimal" id="face90" placeholder="e.g. 10">
+        </div>
+        <div>
+          <label>Current hammer ($) — optional</label>
+          <input inputmode="decimal" id="face90Hammer" placeholder="e.g. 160">
+        </div>
+        <div>
+          <label>Desired profit ($) — optional</label>
+          <input inputmode="decimal" id="face90Profit" placeholder="e.g. 10">
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="kpi">
+        <div class="stat">
+          <div class="t">ASW (0.715)</div>
+          <div class="v" id="face90Asw">—</div>
+        </div>
+        <div class="stat">
+          <div class="t">Melt value ($)</div>
+          <div class="v" id="face90Melt">—</div>
+        </div>
+        <div class="stat">
+          <div class="t">Max Hammer Bid ($)</div>
+          <div class="v" id="face90MaxHammer">—</div>
+        </div>
+        <div class="stat">
+          <div class="t">% of melt</div>
+          <div class="v" id="face90PctMelt">—</div>
+        </div>
+      </div>
+
+      <div class="help" style="margin-top:10px;">
+        Uses <strong>0.715 troy oz silver per $1 face</strong> for circulated 90%.
       </div>
     </section>
 
-    <!-- QUICK MELT TABLE -->
+    <section class="card half">
+      <h2>Bullion Lot Calculator <span>stack multiple bullion items</span></h2>
+
+      <div class="four">
+        <div>
+          <label>Metal</label>
+          <select id="lotMetal">
+            <option value="silver" selected>Silver</option>
+            <option value="gold">Gold</option>
+          </select>
+        </div>
+        <div>
+          <label>Weight (troy oz each)</label>
+          <input inputmode="decimal" id="lotWeightEach" placeholder="e.g. 1">
+        </div>
+        <div>
+          <label>Quantity</label>
+          <input inputmode="decimal" id="lotQty" placeholder="e.g. 10">
+        </div>
+        <div>
+          <label>Premium each ($)</label>
+          <input inputmode="decimal" id="lotPremEach" placeholder="e.g. 4">
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:12px;">
+        <button class="btn green" id="addLotItemBtn">Add item</button>
+        <button class="btn bad" id="clearLotBtn">Clear lot</button>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="tableWrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Metal</th>
+              <th class="right">Wt each</th>
+              <th class="right">Qty</th>
+              <th class="right">Prem each</th>
+              <th class="right">Line value</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="lotTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="kpi">
+        <div class="stat">
+          <div class="t">Lot total value ($)</div>
+          <div class="v" id="lotTotalValue">—</div>
+        </div>
+        <div class="stat">
+          <div class="t">Current hammer ($) — optional</div>
+          <div class="v" id="lotHammerDisplay">—</div>
+        </div>
+        <div class="stat">
+          <div class="t">Max Hammer Bid ($)</div>
+          <div class="v" id="lotMaxHammer">—</div>
+        </div>
+        <div class="stat">
+          <div class="t">Desired profit ($)</div>
+          <div class="v" id="lotProfitDisplay">—</div>
+        </div>
+      </div>
+
+      <div class="three" style="margin-top:12px;">
+        <div>
+          <label>Current hammer ($) — optional</label>
+          <input inputmode="decimal" id="lotHammer" placeholder="e.g. 450">
+        </div>
+        <div>
+          <label>Desired profit ($)</label>
+          <input inputmode="decimal" id="lotProfit" placeholder="e.g. 25">
+        </div>
+        <div></div>
+      </div>
+    </section>
+
     <section class="card">
       <h2>Quick Melt Table <span>based on current spot</span></h2>
 
@@ -370,7 +474,8 @@ const num = (v)=> {
 
 const state = {
   spot:{ gold:NaN, silver:NaN, source:"", updated:"" },
-  discount:1.0
+  discount:1.0,
+  lot:[]
 };
 
 function toast(msg){
@@ -416,17 +521,23 @@ function hammerFromAllIn(allIn){
 function saveState(){
   const ids = [
     "goldSpot","silverSpot","bp","tax","ship",
-    "calcMetal","calcPurity","calcUnit","calcWeight","calcProfit","calcHammer"
+    "calcMetal","calcPurity","calcUnit","calcWeight","calcProfit","calcHammer",
+    "face90","face90Hammer","face90Profit",
+    "lotMetal","lotWeightEach","lotQty","lotPremEach","lotHammer","lotProfit"
   ];
-  const obj = { discount: state.discount };
+  const obj = { discount: state.discount, lot: state.lot };
   ids.forEach(id=>obj[id] = $(id).value);
-  localStorage.setItem("hammerbid_v2", JSON.stringify(obj));
+  localStorage.setItem("hammerbid_v3", JSON.stringify(obj));
 }
 
 function loadState(){
   try{
-    const obj = JSON.parse(localStorage.getItem("hammerbid_v2") || "{}");
+    const obj = JSON.parse(localStorage.getItem("hammerbid_v3") || "{}");
     Object.entries(obj).forEach(([k,v])=>{
+      if(k==="lot"){
+        state.lot = Array.isArray(v) ? v : [];
+        return;
+      }
       const el = $(k);
       if(el) el.value = v;
     });
@@ -476,8 +587,7 @@ function applyDiscount(mult, fromAuto=false){
     if(isFinite(s)) $("silverSpot").value = fmt(s * mult);
   }
   renderSpotText();
-  computeLiveCalc();
-  renderQuickTable();
+  computeAll();
   saveState();
 }
 
@@ -552,44 +662,148 @@ function computeLiveCalc(){
   }
 }
 
+function compute90Face(){
+  const fv = num($("face90").value);
+  const currentHammer = num($("face90Hammer").value);
+  const desiredProfit = num($("face90Profit").value) || 0;
+  const silverSpot = num($("silverSpot").value);
+
+  const asw = isFinite(fv) ? fv * 0.715 : NaN;
+  const melt = isFinite(asw) && isFinite(silverSpot) ? asw * silverSpot : NaN;
+  const targetAllIn = isFinite(melt) ? (melt - desiredProfit) : NaN;
+  const maxHammer = isFinite(targetAllIn) ? hammerFromAllIn(targetAllIn) : NaN;
+
+  $("face90Asw").textContent = isFinite(asw) ? fmt(asw) : "—";
+  $("face90Melt").textContent = isFinite(melt) ? `$${fmt(melt)}` : "—";
+  $("face90MaxHammer").textContent = isFinite(maxHammer) ? `$${fmt(Math.max(0, maxHammer))}` : "—";
+
+  if(isFinite(currentHammer) && isFinite(melt) && melt > 0){
+    const allIn = allInFromHammer(currentHammer);
+    const pct = (allIn / melt) * 100;
+    const el = $("face90PctMelt");
+    el.textContent = `${fmt(pct)}%`;
+    el.className = "v " + (pct <= 100 ? "good" : "badc");
+  } else {
+    $("face90PctMelt").textContent = "—";
+    $("face90PctMelt").className = "v";
+  }
+}
+
+function addLotItem(){
+  const metal = $("lotMetal").value;
+  const wtEach = num($("lotWeightEach").value);
+  const qty = num($("lotQty").value);
+  const premEach = num($("lotPremEach").value) || 0;
+
+  if(!isFinite(wtEach) || !isFinite(qty) || wtEach <= 0 || qty <= 0){
+    toast("Enter valid lot item values");
+    return;
+  }
+
+  state.lot.push({ metal, wtEach, qty, premEach });
+  $("lotWeightEach").value = "";
+  $("lotQty").value = "";
+  $("lotPremEach").value = "";
+  renderLotTable();
+  computeLot();
+  saveState();
+}
+
+function removeLotItem(idx){
+  state.lot.splice(idx, 1);
+  renderLotTable();
+  computeLot();
+  saveState();
+}
+
+function renderLotTable(){
+  const g = num($("goldSpot").value);
+  const s = num($("silverSpot").value);
+
+  $("lotTableBody").innerHTML = state.lot.length ? state.lot.map((it, idx)=>{
+    const spot = it.metal === "gold" ? g : s;
+    const lineVal = (spot * it.wtEach * it.qty) + (it.premEach * it.qty);
+    return `
+      <tr>
+        <td>${it.metal}</td>
+        <td class="right">${fmt(it.wtEach)}</td>
+        <td class="right">${fmt(it.qty)}</td>
+        <td class="right">$${fmt(it.premEach)}</td>
+        <td class="right">$${fmt(lineVal)}</td>
+        <td><button class="btn bad" onclick="removeLotItem(${idx})">Remove</button></td>
+      </tr>
+    `;
+  }).join("") : `<tr><td colspan="6" class="tiny">No lot items yet.</td></tr>`;
+}
+
+window.removeLotItem = removeLotItem;
+
+function computeLot(){
+  const g = num($("goldSpot").value);
+  const s = num($("silverSpot").value);
+  const desiredProfit = num($("lotProfit").value) || 0;
+  const currentHammer = num($("lotHammer").value);
+
+  let totalValue = 0;
+  state.lot.forEach(it=>{
+    const spot = it.metal === "gold" ? g : s;
+    totalValue += (spot * it.wtEach * it.qty) + (it.premEach * it.qty);
+  });
+
+  $("lotTotalValue").textContent = state.lot.length ? `$${fmt(totalValue)}` : "—";
+  $("lotProfitDisplay").textContent = `$${fmt(desiredProfit)}`;
+  $("lotHammerDisplay").textContent = isFinite(currentHammer) ? `$${fmt(currentHammer)}` : "—";
+
+  const targetAllIn = totalValue - desiredProfit;
+  const maxHammer = hammerFromAllIn(targetAllIn);
+  $("lotMaxHammer").textContent = state.lot.length ? `$${fmt(Math.max(0, maxHammer))}` : "—";
+}
+
 function renderQuickTable(){
   const g = num($("goldSpot").value);
   const s = num($("silverSpot").value);
   const rows = [
-    { name:"90% silver per $1 FV (0.715)", fine:(isFinite(s) ? 0.715 : NaN), metal:"silver" },
-    { name:"90% silver per $1 FV (0.7234)", fine:(isFinite(s) ? 0.7234 : NaN), metal:"silver" },
-    { name:"40% Kennedy half, each", fine:(isFinite(s) ? 0.1479 : NaN), metal:"silver" },
-    { name:"War nickel, each", fine:(isFinite(s) ? 0.05626 : NaN), metal:"silver" },
-    { name:"ASE / 1 oz silver bullion", fine:(isFinite(s) ? 1.0 : NaN), metal:"silver" },
-    { name:"Sterling per gram (.925)", fine:(isFinite(s) ? gramsToTroyOz(1) * 0.925 : NaN), metal:"silver" },
-    { name:"14k gold per gram (.585)", fine:(isFinite(g) ? gramsToTroyOz(1) * 0.585 : NaN), metal:"gold" },
-    { name:"18k gold per gram (.750)", fine:(isFinite(g) ? gramsToTroyOz(1) * 0.750 : NaN), metal:"gold" },
-    { name:"22k gold per gram (.9167)", fine:(isFinite(g) ? gramsToTroyOz(1) * 0.9167 : NaN), metal:"gold" },
-    { name:"$2.50 Liberty/Indian (AGW 0.12094)", fine:(isFinite(g) ? 0.12094 : NaN), metal:"gold" },
-    { name:"$5 Liberty/Indian (AGW 0.24187)", fine:(isFinite(g) ? 0.24187 : NaN), metal:"gold" },
-    { name:"$10 Liberty/Indian (AGW 0.48375)", fine:(isFinite(g) ? 0.48375 : NaN), metal:"gold" },
-    { name:"$20 Liberty/Saint (AGW 0.96750)", fine:(isFinite(g) ? 0.96750 : NaN), metal:"gold" }
+    { name:"90% silver per $1 FV (0.715)", fine:0.715, metal:"silver" },
+    { name:"90% silver per $1 FV (0.7234)", fine:0.7234, metal:"silver" },
+    { name:"40% Kennedy half, each", fine:0.1479, metal:"silver" },
+    { name:"War nickel, each", fine:0.05626, metal:"silver" },
+    { name:"ASE / 1 oz silver bullion", fine:1.0, metal:"silver" },
+    { name:"Sterling per gram (.925)", fine:gramsToTroyOz(1) * 0.925, metal:"silver" },
+    { name:"14k gold per gram (.585)", fine:gramsToTroyOz(1) * 0.585, metal:"gold" },
+    { name:"18k gold per gram (.750)", fine:gramsToTroyOz(1) * 0.750, metal:"gold" },
+    { name:"22k gold per gram (.9167)", fine:gramsToTroyOz(1) * 0.9167, metal:"gold" },
+    { name:"$2.50 Liberty/Indian (AGW 0.12094)", fine:0.12094, metal:"gold" },
+    { name:"$5 Liberty/Indian (AGW 0.24187)", fine:0.24187, metal:"gold" },
+    { name:"$10 Liberty/Indian (AGW 0.48375)", fine:0.48375, metal:"gold" },
+    { name:"$20 Liberty/Saint (AGW 0.96750)", fine:0.96750, metal:"gold" }
   ];
 
   $("quickTableBody").innerHTML = rows.map(r=>{
     const spot = r.metal === "gold" ? g : s;
-    const melt = isFinite(spot) && isFinite(r.fine) ? spot * r.fine : NaN;
+    const melt = isFinite(spot) ? spot * r.fine : NaN;
     return `
       <tr>
         <td>${r.name}</td>
-        <td>${isFinite(r.fine) ? fmt(r.fine) : "—"} ${r.metal === "gold" || r.metal === "silver" ? "ozt fine" : ""}</td>
+        <td>${fmt(r.fine)} ozt fine</td>
         <td class="right">${isFinite(melt) ? "$" + fmt(melt) : "—"}</td>
       </tr>
     `;
   }).join("");
 }
 
+function computeAll(){
+  renderSpotText();
+  computeLiveCalc();
+  compute90Face();
+  renderLotTable();
+  computeLot();
+  renderQuickTable();
+  saveState();
+}
+
 document.addEventListener("input", (e)=>{
   if(e.target && (e.target.tagName === "INPUT" || e.target.tagName === "SELECT")){
-    renderSpotText();
-    computeLiveCalc();
-    renderQuickTable();
-    saveState();
+    computeAll();
   }
 });
 
@@ -598,8 +812,15 @@ $("use10Btn").addEventListener("click", ()=>applyDiscount(0.90, true));
 $("use20Btn").addEventListener("click", ()=>applyDiscount(0.80, true));
 $("refreshSpotBtn").addEventListener("click", refreshSpot);
 $("resetBtn").addEventListener("click", ()=>{
-  localStorage.removeItem("hammerbid_v2");
+  localStorage.removeItem("hammerbid_v3");
   location.reload();
+});
+$("addLotItemBtn").addEventListener("click", addLotItem);
+$("clearLotBtn").addEventListener("click", ()=>{
+  state.lot = [];
+  renderLotTable();
+  computeLot();
+  saveState();
 });
 
 let deferredPrompt = null;
@@ -623,9 +844,7 @@ if("serviceWorker" in navigator){
 }
 
 loadState();
-renderSpotText();
-computeLiveCalc();
-renderQuickTable();
+computeAll();
 refreshSpot();
 setInterval(updateSpotAge, 60000);
 </script>
