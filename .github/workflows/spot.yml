@@ -11,6 +11,7 @@ permissions:
 jobs:
   update-spot:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -18,10 +19,10 @@ jobs:
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
-      - name: Fetch spot (metals.live)
+      - name: Fetch spot via AllOrigins
         run: |
           set -e
-          curl -L --fail --tlsv1.2 https://api.metals.live/v1/spot -o raw.json
+          curl -L --fail "https://api.allorigins.win/raw?url=https%3A%2F%2Fapi.metals.live%2Fv1%2Fspot" -o raw.json
           echo "raw.json sample:"
           head -c 300 raw.json || true
           echo ""
@@ -39,7 +40,7 @@ jobs:
           fi
 
           jq -n \
-            --arg source "metals.live" \
+            --arg source "metals.live via allorigins" \
             --arg updated_utc "$(date -u +%FT%TZ)" \
             --argjson gold_usd_oz "$GOLD" \
             --argjson silver_usd_oz "$SILVER" \
