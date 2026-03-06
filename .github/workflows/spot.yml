@@ -19,19 +19,19 @@ jobs:
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
-      - name: Fetch spot via AllOrigins
+      - name: Fetch spot from GoldPrice
         run: |
           set -e
-          curl -L --fail "https://api.allorigins.win/raw?url=https%3A%2F%2Fapi.metals.live%2Fv1%2Fspot" -o raw.json
+          curl -L --fail "https://data-asg.goldprice.org/dbXRates/USD" -o raw.json
           echo "raw.json sample:"
-          head -c 300 raw.json || true
+          head -c 400 raw.json || true
           echo ""
 
       - name: Build spot.json
         run: |
           set -e
-          GOLD=$(jq -r 'map(select(has("gold")))[0].gold // empty' raw.json)
-          SILVER=$(jq -r 'map(select(has("silver")))[0].silver // empty' raw.json)
+          GOLD=$(jq -r '.items[0].xauPrice // empty' raw.json)
+          SILVER=$(jq -r '.items[0].xagPrice // empty' raw.json)
 
           if [ -z "$GOLD" ] || [ -z "$SILVER" ]; then
             echo "Could not parse gold/silver from raw.json"
@@ -40,7 +40,7 @@ jobs:
           fi
 
           jq -n \
-            --arg source "metals.live via allorigins" \
+            --arg source "goldprice.org" \
             --arg updated_utc "$(date -u +%FT%TZ)" \
             --argjson gold_usd_oz "$GOLD" \
             --argjson silver_usd_oz "$SILVER" \
