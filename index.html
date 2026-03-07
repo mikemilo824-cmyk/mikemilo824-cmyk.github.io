@@ -31,7 +31,7 @@
       background: radial-gradient(1200px 700px at 10% 0%, #142346 0%, var(--bg) 60%);
       color:var(--text);
     }
-    .wrap{max-width:1250px;margin:0 auto;padding:18px}
+    .wrap{max-width:1280px;margin:0 auto;padding:18px}
     header{
       position:sticky;top:0;z-index:50;
       background: linear-gradient(to bottom, rgba(11,18,32,.98), rgba(11,18,32,.72));
@@ -146,7 +146,6 @@
     }
     tr:last-child td{border-bottom:none}
     .right{text-align:right}
-    .mono{font-variant-numeric:tabular-nums}
   </style>
 </head>
 
@@ -157,7 +156,7 @@
       <div class="dot" id="statusDot"></div>
       <div>
         <h1>HammerBid</h1>
-        <div class="sub">Auction max-bid + melt + eBay/net — with auto spot via GitHub Actions</div>
+        <div class="sub">Auction max-bid + melt + bullion lots + 90% face + presets</div>
       </div>
     </div>
     <button class="btn blue" id="installBtn" style="display:none;">Install</button>
@@ -243,9 +242,38 @@
     </section>
 
     <section class="card">
-      <h2>Live Hammer Bid Calculator <span>melt-based bidding</span></h2>
+      <h2>Live Hammer Bid Calculator <span>with presets</span></h2>
 
-      <div class="four">
+      <div class="two">
+        <div>
+          <label>Preset</label>
+          <select id="calcPreset">
+            <option value="">— Select preset —</option>
+            <optgroup label="AGE">
+              <option value="age1">AGE 1 oz</option>
+              <option value="age_half">AGE 1/2 oz</option>
+              <option value="age_quarter">AGE 1/4 oz</option>
+              <option value="age_tenth">AGE 1/10 oz</option>
+            </optgroup>
+            <optgroup label="US Commemorative Silver">
+              <option value="commem_silver_ozt">Modern silver commem (1.000 ASW)</option>
+              <option value="commem_silver_90">Classic silver commem (.900, 12.5g)</option>
+            </optgroup>
+            <optgroup label="US Commemorative Gold">
+              <option value="commem_gold_half">Modern gold commem 1/2 oz</option>
+              <option value="commem_gold_quarter">Modern gold commem 1/4 oz</option>
+            </optgroup>
+            <optgroup label="Gold Jewelry Lots">
+              <option value="jewelry_14k">Gold jewelry lot 14k</option>
+              <option value="jewelry_18k">Gold jewelry lot 18k</option>
+              <option value="jewelry_22k">Gold jewelry lot 22k</option>
+            </optgroup>
+          </select>
+        </div>
+        <div></div>
+      </div>
+
+      <div class="four" style="margin-top:12px;">
         <div>
           <label>Metal</label>
           <select id="calcMetal">
@@ -296,7 +324,7 @@
 
       <div class="kpi">
         <div class="stat">
-          <div class="t">Melt value ($)</div>
+          <div class="t">Melt / Intrinsic value ($)</div>
           <div class="v" id="calcMelt">—</div>
         </div>
         <div class="stat">
@@ -359,9 +387,33 @@
     </section>
 
     <section class="card half">
-      <h2>Bullion Lot Calculator <span>stack multiple bullion items</span></h2>
+      <h2>Bullion Lot Calculator <span>stack multiple items</span></h2>
 
-      <div class="four">
+      <div class="two">
+        <div>
+          <label>Preset</label>
+          <select id="lotPreset">
+            <option value="">— Select preset —</option>
+            <optgroup label="Silver">
+              <option value="ase">ASE 1 oz</option>
+              <option value="maple_silver">Maple 1 oz silver</option>
+              <option value="britannia_silver">Britannia 1 oz silver</option>
+            </optgroup>
+            <optgroup label="Gold">
+              <option value="age1">AGE 1 oz</option>
+              <option value="age_half">AGE 1/2 oz</option>
+              <option value="age_quarter">AGE 1/4 oz</option>
+              <option value="age_tenth">AGE 1/10 oz</option>
+              <option value="krugerrand_1">Krugerrand 1 oz</option>
+              <option value="maple_gold">Maple 1 oz gold</option>
+              <option value="britannia_gold">Britannia 1 oz gold</option>
+            </optgroup>
+          </select>
+        </div>
+        <div></div>
+      </div>
+
+      <div class="four" style="margin-top:12px;">
         <div>
           <label>Metal</label>
           <select id="lotMetal">
@@ -394,7 +446,7 @@
         <table>
           <thead>
             <tr>
-              <th>Metal</th>
+              <th>Item</th>
               <th class="right">Wt each</th>
               <th class="right">Qty</th>
               <th class="right">Prem each</th>
@@ -414,7 +466,7 @@
           <div class="v" id="lotTotalValue">—</div>
         </div>
         <div class="stat">
-          <div class="t">Current hammer ($) — optional</div>
+          <div class="t">Current hammer ($)</div>
           <div class="v" id="lotHammerDisplay">—</div>
         </div>
         <div class="stat">
@@ -449,7 +501,7 @@
             <tr>
               <th>Item</th>
               <th>Fine content</th>
-              <th class="right">Melt value</th>
+              <th class="right">Melt / intrinsic value</th>
             </tr>
           </thead>
           <tbody id="quickTableBody"></tbody>
@@ -470,6 +522,29 @@ const num = (v)=> {
   const s = String(v).replace(/[$, ]/g,'').trim();
   const n = parseFloat(s);
   return isFinite(n) ? n : NaN;
+};
+
+const PRESETS = {
+  age1: { label:"AGE 1 oz", metal:"gold", purity:1.0, unit:"ozt", weight:1.0 },
+  age_half: { label:"AGE 1/2 oz", metal:"gold", purity:1.0, unit:"ozt", weight:0.5 },
+  age_quarter: { label:"AGE 1/4 oz", metal:"gold", purity:1.0, unit:"ozt", weight:0.25 },
+  age_tenth: { label:"AGE 1/10 oz", metal:"gold", purity:1.0, unit:"ozt", weight:0.1 },
+
+  commem_silver_ozt: { label:"Modern silver commem", metal:"silver", purity:1.0, unit:"ozt", weight:1.0 },
+  commem_silver_90: { label:"Classic silver commem", metal:"silver", purity:0.9, unit:"g", weight:12.5 },
+  commem_gold_half: { label:"Modern gold commem 1/2 oz", metal:"gold", purity:1.0, unit:"ozt", weight:0.5 },
+  commem_gold_quarter: { label:"Modern gold commem 1/4 oz", metal:"gold", purity:1.0, unit:"ozt", weight:0.25 },
+
+  jewelry_14k: { label:"Gold jewelry lot 14k", metal:"gold", purity:0.585, unit:"g", weight:"" },
+  jewelry_18k: { label:"Gold jewelry lot 18k", metal:"gold", purity:0.75, unit:"g", weight:"" },
+  jewelry_22k: { label:"Gold jewelry lot 22k", metal:"gold", purity:0.9167, unit:"g", weight:"" },
+
+  ase: { label:"ASE 1 oz", metal:"silver", weight:1.0 },
+  maple_silver: { label:"Maple 1 oz silver", metal:"silver", weight:1.0 },
+  britannia_silver: { label:"Britannia 1 oz silver", metal:"silver", weight:1.0 },
+  krugerrand_1: { label:"Krugerrand 1 oz", metal:"gold", weight:1.0 },
+  maple_gold: { label:"Maple 1 oz gold", metal:"gold", weight:1.0 },
+  britannia_gold: { label:"Britannia 1 oz gold", metal:"gold", weight:1.0 }
 };
 
 const state = {
@@ -521,18 +596,18 @@ function hammerFromAllIn(allIn){
 function saveState(){
   const ids = [
     "goldSpot","silverSpot","bp","tax","ship",
-    "calcMetal","calcPurity","calcUnit","calcWeight","calcProfit","calcHammer",
+    "calcPreset","calcMetal","calcPurity","calcUnit","calcWeight","calcProfit","calcHammer",
     "face90","face90Hammer","face90Profit",
-    "lotMetal","lotWeightEach","lotQty","lotPremEach","lotHammer","lotProfit"
+    "lotPreset","lotMetal","lotWeightEach","lotQty","lotPremEach","lotHammer","lotProfit"
   ];
   const obj = { discount: state.discount, lot: state.lot };
   ids.forEach(id=>obj[id] = $(id).value);
-  localStorage.setItem("hammerbid_v3", JSON.stringify(obj));
+  localStorage.setItem("hammerbid_v4", JSON.stringify(obj));
 }
 
 function loadState(){
   try{
-    const obj = JSON.parse(localStorage.getItem("hammerbid_v3") || "{}");
+    const obj = JSON.parse(localStorage.getItem("hammerbid_v4") || "{}");
     Object.entries(obj).forEach(([k,v])=>{
       if(k==="lot"){
         state.lot = Array.isArray(v) ? v : [];
@@ -628,6 +703,17 @@ async function refreshSpot(){
   }
 }
 
+function applyCalcPreset(){
+  const key = $("calcPreset").value;
+  const p = PRESETS[key];
+  if(!p) return;
+  $("calcMetal").value = p.metal;
+  $("calcPurity").value = String(p.purity);
+  $("calcUnit").value = p.unit;
+  $("calcWeight").value = p.weight === "" ? "" : String(p.weight);
+  computeAll();
+}
+
 function computeLiveCalc(){
   const metal = $("calcMetal").value;
   const purity = num($("calcPurity").value);
@@ -689,7 +775,17 @@ function compute90Face(){
   }
 }
 
+function applyLotPreset(){
+  const key = $("lotPreset").value;
+  const p = PRESETS[key];
+  if(!p) return;
+  $("lotMetal").value = p.metal;
+  $("lotWeightEach").value = p.weight === "" ? "" : String(p.weight);
+}
+
 function addLotItem(){
+  const presetKey = $("lotPreset").value;
+  const presetLabel = PRESETS[presetKey]?.label || "";
   const metal = $("lotMetal").value;
   const wtEach = num($("lotWeightEach").value);
   const qty = num($("lotQty").value);
@@ -700,10 +796,11 @@ function addLotItem(){
     return;
   }
 
-  state.lot.push({ metal, wtEach, qty, premEach });
+  state.lot.push({ label: presetLabel || metal, metal, wtEach, qty, premEach });
   $("lotWeightEach").value = "";
   $("lotQty").value = "";
   $("lotPremEach").value = "";
+  $("lotPreset").value = "";
   renderLotTable();
   computeLot();
   saveState();
@@ -715,6 +812,7 @@ function removeLotItem(idx){
   computeLot();
   saveState();
 }
+window.removeLotItem = removeLotItem;
 
 function renderLotTable(){
   const g = num($("goldSpot").value);
@@ -725,7 +823,7 @@ function renderLotTable(){
     const lineVal = (spot * it.wtEach * it.qty) + (it.premEach * it.qty);
     return `
       <tr>
-        <td>${it.metal}</td>
+        <td>${it.label}</td>
         <td class="right">${fmt(it.wtEach)}</td>
         <td class="right">${fmt(it.qty)}</td>
         <td class="right">$${fmt(it.premEach)}</td>
@@ -735,8 +833,6 @@ function renderLotTable(){
     `;
   }).join("") : `<tr><td colspan="6" class="tiny">No lot items yet.</td></tr>`;
 }
-
-window.removeLotItem = removeLotItem;
 
 function computeLot(){
   const g = num($("goldSpot").value);
@@ -764,18 +860,20 @@ function renderQuickTable(){
   const s = num($("silverSpot").value);
   const rows = [
     { name:"90% silver per $1 FV (0.715)", fine:0.715, metal:"silver" },
-    { name:"90% silver per $1 FV (0.7234)", fine:0.7234, metal:"silver" },
     { name:"40% Kennedy half, each", fine:0.1479, metal:"silver" },
     { name:"War nickel, each", fine:0.05626, metal:"silver" },
-    { name:"ASE / 1 oz silver bullion", fine:1.0, metal:"silver" },
+    { name:"ASE / 1 oz silver", fine:1.0, metal:"silver" },
+    { name:"Silver commem (1.000 ASW)", fine:1.0, metal:"silver" },
+    { name:"Classic silver commem (.900, 12.5g)", fine:gramsToTroyOz(12.5)*0.9, metal:"silver" },
     { name:"Sterling per gram (.925)", fine:gramsToTroyOz(1) * 0.925, metal:"silver" },
     { name:"14k gold per gram (.585)", fine:gramsToTroyOz(1) * 0.585, metal:"gold" },
     { name:"18k gold per gram (.750)", fine:gramsToTroyOz(1) * 0.750, metal:"gold" },
-    { name:"22k gold per gram (.9167)", fine:gramsToTroyOz(1) * 0.9167, metal:"gold" },
-    { name:"$2.50 Liberty/Indian (AGW 0.12094)", fine:0.12094, metal:"gold" },
-    { name:"$5 Liberty/Indian (AGW 0.24187)", fine:0.24187, metal:"gold" },
-    { name:"$10 Liberty/Indian (AGW 0.48375)", fine:0.48375, metal:"gold" },
-    { name:"$20 Liberty/Saint (AGW 0.96750)", fine:0.96750, metal:"gold" }
+    { name:"AGE 1 oz", fine:1.0, metal:"gold" },
+    { name:"AGE 1/2 oz", fine:0.5, metal:"gold" },
+    { name:"AGE 1/4 oz", fine:0.25, metal:"gold" },
+    { name:"AGE 1/10 oz", fine:0.1, metal:"gold" },
+    { name:"Gold commem 1/2 oz", fine:0.5, metal:"gold" },
+    { name:"Gold commem 1/4 oz", fine:0.25, metal:"gold" }
   ];
 
   $("quickTableBody").innerHTML = rows.map(r=>{
@@ -807,12 +905,15 @@ document.addEventListener("input", (e)=>{
   }
 });
 
+$("calcPreset").addEventListener("change", applyCalcPreset);
+$("lotPreset").addEventListener("change", applyLotPreset);
+
 $("use100Btn").addEventListener("click", ()=>applyDiscount(1.0, true));
 $("use10Btn").addEventListener("click", ()=>applyDiscount(0.90, true));
 $("use20Btn").addEventListener("click", ()=>applyDiscount(0.80, true));
 $("refreshSpotBtn").addEventListener("click", refreshSpot);
 $("resetBtn").addEventListener("click", ()=>{
-  localStorage.removeItem("hammerbid_v3");
+  localStorage.removeItem("hammerbid_v4");
   location.reload();
 });
 $("addLotItemBtn").addEventListener("click", addLotItem);
