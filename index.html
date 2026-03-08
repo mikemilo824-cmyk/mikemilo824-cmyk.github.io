@@ -64,6 +64,7 @@
     .btn.blue{border-color:rgba(59,130,246,.5); background: linear-gradient(180deg, rgba(59,130,246,.22), rgba(59,130,246,.10))}
     .btn.bad{border-color:rgba(255,90,95,.45); background: linear-gradient(180deg, rgba(255,90,95,.22), rgba(255,90,95,.10))}
     .btn.green{border-color:rgba(49,196,141,.5); background: linear-gradient(180deg, rgba(49,196,141,.22), rgba(49,196,141,.10))}
+    .btn.gold{border-color:rgba(251,191,36,.4); background: linear-gradient(180deg, rgba(251,191,36,.18), rgba(251,191,36,.08))}
     .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;margin-top:18px}
     .card{
       grid-column:span 12;
@@ -356,7 +357,7 @@
     </section>
 
     <section class="card half">
-      <h2>90% Silver Face Calculator <span>junk silver quick math</span></h2>
+      <h2>90% Silver Face Calculator <span>dynamic dealer mode</span></h2>
 
       <div class="three">
         <div>
@@ -377,6 +378,10 @@
 
       <div class="kpi">
         <div class="stat">
+          <div class="t">Live melt multiplier</div>
+          <div class="v" id="face90Multiplier">—</div>
+        </div>
+        <div class="stat">
           <div class="t">ASW (0.715)</div>
           <div class="v" id="face90Asw">—</div>
         </div>
@@ -388,14 +393,36 @@
           <div class="t">Max Hammer Bid ($)</div>
           <div class="v" id="face90MaxHammer">—</div>
         </div>
+      </div>
+
+      <div class="row" style="margin-top:12px;">
+        <button class="btn gold" id="face90SpotBtn">90% @ Spot</button>
+        <button class="btn" id="face9095Btn">90% @ 95% melt</button>
+        <button class="btn" id="face9090Btn">90% @ 90% melt</button>
+        <button class="btn" id="face9085Btn">90% @ 85% melt</button>
+      </div>
+
+      <div class="kpi" style="margin-top:12px;">
         <div class="stat">
-          <div class="t">% of melt</div>
+          <div class="t">% of melt at current hammer</div>
           <div class="v" id="face90PctMelt">—</div>
+        </div>
+        <div class="stat">
+          <div class="t">Spot value by button</div>
+          <div class="v" id="face90ButtonValue">—</div>
+        </div>
+        <div class="stat">
+          <div class="t">95% / 90% / 85%</div>
+          <div class="v" id="face90DealerValues">—</div>
+        </div>
+        <div class="stat">
+          <div class="t">Selected dealer target</div>
+          <div class="v" id="face90SelectedTarget">—</div>
         </div>
       </div>
 
       <div class="help" style="margin-top:10px;">
-        Uses <strong>0.715 troy oz silver per $1 face</strong> for circulated 90%.
+        Uses <strong>0.715 troy oz silver per $1 face</strong> for circulated 90%, then derives live dealer multiples from current silver spot.
       </div>
     </section>
 
@@ -542,12 +569,10 @@ const PRESETS = {
   age_half: { label:"AGE 1/2 oz", metal:"gold", purity:1.0, unit:"ozt", weight:0.5 },
   age_quarter: { label:"AGE 1/4 oz", metal:"gold", purity:1.0, unit:"ozt", weight:0.25 },
   age_tenth: { label:"AGE 1/10 oz", metal:"gold", purity:1.0, unit:"ozt", weight:0.1 },
-
   commem_silver_ozt: { label:"Modern silver commem", metal:"silver", purity:1.0, unit:"ozt", weight:1.0 },
   commem_silver_90: { label:"Classic silver commem", metal:"silver", purity:0.9, unit:"g", weight:12.5 },
   commem_gold_half: { label:"Modern gold commem 1/2 oz", metal:"gold", purity:1.0, unit:"ozt", weight:0.5 },
   commem_gold_quarter: { label:"Modern gold commem 1/4 oz", metal:"gold", purity:1.0, unit:"ozt", weight:0.25 },
-
   jewelry_14k: { label:"Gold jewelry lot 14k", metal:"gold", purity:0.585, unit:"g", weight:"" },
   jewelry_18k: { label:"Gold jewelry lot 18k", metal:"gold", purity:0.75, unit:"g", weight:"" },
   jewelry_22k: { label:"Gold jewelry lot 22k", metal:"gold", purity:0.9167, unit:"g", weight:"" },
@@ -563,7 +588,8 @@ const PRESETS = {
 const state = {
   spot:{ gold:NaN, silver:NaN, source:"", updated:"" },
   discount:1.0,
-  lot:[]
+  lot:[],
+  face90SelectedPct: 1.0
 };
 
 function toast(msg){
@@ -613,17 +639,21 @@ function saveState(){
     "face90","face90Hammer","face90Profit",
     "lotPreset","lotMetal","lotWeightEach","lotQty","lotPremEach","lotHammer","lotProfit"
   ];
-  const obj = { discount: state.discount, lot: state.lot };
+  const obj = { discount: state.discount, lot: state.lot, face90SelectedPct: state.face90SelectedPct };
   ids.forEach(id=>obj[id] = $(id).value);
-  localStorage.setItem("hammerbid_v4", JSON.stringify(obj));
+  localStorage.setItem("hammerbid_v5", JSON.stringify(obj));
 }
 
 function loadState(){
   try{
-    const obj = JSON.parse(localStorage.getItem("hammerbid_v4") || "{}");
+    const obj = JSON.parse(localStorage.getItem("hammerbid_v5") || "{}");
     Object.entries(obj).forEach(([k,v])=>{
       if(k==="lot"){
         state.lot = Array.isArray(v) ? v : [];
+        return;
+      }
+      if(k==="face90SelectedPct"){
+        state.face90SelectedPct = Number(v) || 1.0;
         return;
       }
       const el = $(k);
@@ -761,6 +791,12 @@ function computeLiveCalc(){
   }
 }
 
+function setFace90Target(pct){
+  state.face90SelectedPct = pct;
+  compute90Face();
+  saveState();
+}
+
 function compute90Face(){
   const fv = num($("face90").value);
   const currentHammer = num($("face90Hammer").value);
@@ -769,12 +805,29 @@ function compute90Face(){
 
   const asw = isFinite(fv) ? fv * 0.715 : NaN;
   const melt = isFinite(asw) && isFinite(silverSpot) ? asw * silverSpot : NaN;
-  const targetAllIn = isFinite(melt) ? (melt - desiredProfit) : NaN;
-  const maxHammer = isFinite(targetAllIn) ? hammerFromAllIn(targetAllIn) : NaN;
+  const liveMult = isFinite(silverSpot) ? (0.715 * silverSpot) : NaN;
 
   $("face90Asw").textContent = isFinite(asw) ? fmt(asw) : "—";
   $("face90Melt").textContent = isFinite(melt) ? `$${fmt(melt)}` : "—";
+  $("face90Multiplier").textContent = isFinite(liveMult) ? `${fmt(liveMult)}x` : "—";
+
+  const dealerTargetPerDollar = isFinite(liveMult) ? (liveMult * state.face90SelectedPct) : NaN;
+  const dealerTargetTotal = isFinite(fv) && isFinite(dealerTargetPerDollar) ? (fv * dealerTargetPerDollar) : NaN;
+  const targetAllIn = isFinite(dealerTargetTotal) ? (dealerTargetTotal - desiredProfit) : NaN;
+  const maxHammer = isFinite(targetAllIn) ? hammerFromAllIn(targetAllIn) : NaN;
+
   $("face90MaxHammer").textContent = isFinite(maxHammer) ? `$${fmt(Math.max(0, maxHammer))}` : "—";
+  $("face90ButtonValue").textContent = isFinite(dealerTargetTotal) ? `$${fmt(dealerTargetTotal)}` : "—";
+  $("face90SelectedTarget").textContent = isFinite(dealerTargetPerDollar) ? `${fmt(dealerTargetPerDollar)}x` : "—";
+
+  if(isFinite(liveMult)){
+    const v95 = liveMult * 0.95;
+    const v90 = liveMult * 0.90;
+    const v85 = liveMult * 0.85;
+    $("face90DealerValues").textContent = `${fmt(v95)}x / ${fmt(v90)}x / ${fmt(v85)}x`;
+  } else {
+    $("face90DealerValues").textContent = "—";
+  }
 
   if(isFinite(currentHammer) && isFinite(melt) && melt > 0){
     const allIn = allInFromHammer(currentHammer);
@@ -921,12 +974,17 @@ document.addEventListener("input", (e)=>{
 $("calcPreset").addEventListener("change", applyCalcPreset);
 $("lotPreset").addEventListener("change", applyLotPreset);
 
+$("face90SpotBtn").addEventListener("click", ()=>setFace90Target(1.00));
+$("face9095Btn").addEventListener("click", ()=>setFace90Target(0.95));
+$("face9090Btn").addEventListener("click", ()=>setFace90Target(0.90));
+$("face9085Btn").addEventListener("click", ()=>setFace90Target(0.85));
+
 $("use100Btn").addEventListener("click", ()=>applyDiscount(1.0, true));
 $("use10Btn").addEventListener("click", ()=>applyDiscount(0.90, true));
 $("use20Btn").addEventListener("click", ()=>applyDiscount(0.80, true));
 $("refreshSpotBtn").addEventListener("click", refreshSpot);
 $("resetBtn").addEventListener("click", ()=>{
-  localStorage.removeItem("hammerbid_v4");
+  localStorage.removeItem("hammerbid_v5");
   location.reload();
 });
 $("addLotItemBtn").addEventListener("click", addLotItem);
@@ -964,4 +1022,3 @@ setInterval(updateSpotAge, 60000);
 </script>
 </body>
 </html>
-
