@@ -31,7 +31,7 @@
       background: radial-gradient(1200px 700px at 10% 0%, #142346 0%, var(--bg) 60%);
       color:var(--text);
     }
-    .wrap{max-width:1280px;margin:0 auto;padding:18px}
+    .wrap{max-width:1320px;margin:0 auto;padding:18px}
     header{
       position:sticky;top:0;z-index:50;
       background: linear-gradient(to bottom, rgba(11,18,32,.98), rgba(11,18,32,.72));
@@ -170,7 +170,7 @@
       <div class="dot" id="statusDot"></div>
       <div>
         <h1>HammerBid</h1>
-        <div class="sub">Auction max-bid + melt + bullion lots + 90% face + presets</div>
+        <div class="sub">Auction max-bid + melt + bullion lots + 90% face + jewelry + flips</div>
       </div>
     </div>
     <button class="btn blue" id="installBtn" style="display:none;">Install</button>
@@ -338,7 +338,7 @@
 
       <div class="kpi">
         <div class="stat">
-          <div class="t">Melt / Intrinsic value ($)</div>
+          <div class="t">Melt / intrinsic value ($)</div>
           <div class="v" id="calcMelt">—</div>
         </div>
         <div class="stat">
@@ -420,9 +420,141 @@
           <div class="v" id="face90SelectedTarget">—</div>
         </div>
       </div>
+    </section>
 
-      <div class="help" style="margin-top:10px;">
-        Uses <strong>0.715 troy oz silver per $1 face</strong> for circulated 90%, then derives live dealer multiples from current silver spot.
+    <section class="card half">
+      <h2>Gold Jewelry Lot Calculator <span>estate-sale lot mode</span></h2>
+
+      <div class="four">
+        <div>
+          <label>Purity</label>
+          <select id="jewelPurity">
+            <option value="0.585" selected>14k (0.585)</option>
+            <option value="0.750">18k (0.750)</option>
+            <option value="0.9167">22k (0.9167)</option>
+          </select>
+        </div>
+        <div>
+          <label>Total gross grams</label>
+          <input inputmode="decimal" id="jewelGrossG" placeholder="e.g. 42.5">
+        </div>
+        <div>
+          <label>Less stones / non-gold grams</label>
+          <input inputmode="decimal" id="jewelLessG" placeholder="e.g. 5.0">
+        </div>
+        <div>
+          <label>Desired profit ($)</label>
+          <input inputmode="decimal" id="jewelProfit" placeholder="e.g. 40">
+        </div>
+      </div>
+
+      <div class="three" style="margin-top:12px;">
+        <div>
+          <label>Current hammer ($) — optional</label>
+          <input inputmode="decimal" id="jewelHammer" placeholder="e.g. 800">
+        </div>
+        <div></div>
+        <div></div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="kpi">
+        <div class="stat">
+          <div class="t">Net gold weight (g)</div>
+          <div class="v" id="jewelNetG">—</div>
+        </div>
+        <div class="stat">
+          <div class="t">Fine gold (ozt)</div>
+          <div class="v" id="jewelFineOzt">—</div>
+        </div>
+        <div class="stat">
+          <div class="t">Melt value ($)</div>
+          <div class="v" id="jewelMelt">—</div>
+        </div>
+        <div class="stat">
+          <div class="t">Max Hammer Bid ($)</div>
+          <div class="v" id="jewelMaxHammer">—</div>
+        </div>
+      </div>
+
+      <div class="kpi" style="margin-top:12px;">
+        <div class="stat">
+          <div class="t">All-in cost ($)</div>
+          <div class="v" id="jewelAllIn">—</div>
+        </div>
+        <div class="stat">
+          <div class="t">Profit margin (%)</div>
+          <div class="v" id="jewelMargin">—</div>
+        </div>
+        <div class="stat">
+          <div class="t">% of melt at hammer</div>
+          <div class="v" id="jewelPctMelt">—</div>
+        </div>
+        <div class="stat">
+          <div class="t"></div>
+          <div class="v"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card half">
+      <h2>General Flip Calculator <span>eBay comps driven</span></h2>
+
+      <div class="four">
+        <div>
+          <label>Estimated sold comps ($)</label>
+          <input inputmode="decimal" id="flipComps" placeholder="e.g. 350">
+        </div>
+        <div>
+          <label>eBay / selling fees (%)</label>
+          <input inputmode="decimal" id="flipFeePct" placeholder="e.g. 13.25">
+        </div>
+        <div>
+          <label>Other selling costs ($)</label>
+          <input inputmode="decimal" id="flipSellOther" placeholder="e.g. 15">
+        </div>
+        <div>
+          <label>Desired profit ($)</label>
+          <input inputmode="decimal" id="flipProfit" placeholder="e.g. 75">
+        </div>
+      </div>
+
+      <div class="three" style="margin-top:12px;">
+        <div>
+          <label>Current hammer ($) — optional</label>
+          <input inputmode="decimal" id="flipHammer" placeholder="e.g. 180">
+        </div>
+        <div>
+          <label>Extra acquisition costs ($)</label>
+          <input inputmode="decimal" id="flipAcquireOther" placeholder="e.g. 0">
+        </div>
+        <div></div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="kpi">
+        <div class="stat">
+          <div class="t">Expected net sale ($)</div>
+          <div class="v" id="flipNetSale">—</div>
+        </div>
+        <div class="stat">
+          <div class="t">Max Hammer Bid ($)</div>
+          <div class="v" id="flipMaxHammer">—</div>
+        </div>
+        <div class="stat">
+          <div class="t">All-in cost ($)</div>
+          <div class="v" id="flipAllIn">—</div>
+        </div>
+        <div class="stat">
+          <div class="t">Net profit at hammer ($)</div>
+          <div class="v" id="flipNetProfit">—</div>
+        </div>
+      </div>
+
+      <div class="help" style="margin-top:12px;">
+        Formula: <strong>sold comps − selling fees − desired profit − extra acquisition costs = target all-in</strong>, then HammerBid solves for max hammer.
       </div>
     </section>
 
@@ -637,16 +769,18 @@ function saveState(){
     "goldSpot","silverSpot","bp","tax","ship",
     "calcPreset","calcMetal","calcPurity","calcUnit","calcWeight","calcProfit","calcHammer",
     "face90","face90Hammer","face90Profit",
+    "jewelPurity","jewelGrossG","jewelLessG","jewelProfit","jewelHammer",
+    "flipComps","flipFeePct","flipSellOther","flipProfit","flipHammer","flipAcquireOther",
     "lotPreset","lotMetal","lotWeightEach","lotQty","lotPremEach","lotHammer","lotProfit"
   ];
   const obj = { discount: state.discount, lot: state.lot, face90SelectedPct: state.face90SelectedPct };
   ids.forEach(id=>obj[id] = $(id).value);
-  localStorage.setItem("hammerbid_v5", JSON.stringify(obj));
+  localStorage.setItem("hammerbid_v6", JSON.stringify(obj));
 }
 
 function loadState(){
   try{
-    const obj = JSON.parse(localStorage.getItem("hammerbid_v5") || "{}");
+    const obj = JSON.parse(localStorage.getItem("hammerbid_v6") || "{}");
     Object.entries(obj).forEach(([k,v])=>{
       if(k==="lot"){
         state.lot = Array.isArray(v) ? v : [];
@@ -841,6 +975,75 @@ function compute90Face(){
   }
 }
 
+function computeJewelryLot(){
+  const purity = num($("jewelPurity").value);
+  const grossG = num($("jewelGrossG").value);
+  const lessG = num($("jewelLessG").value) || 0;
+  const desiredProfit = num($("jewelProfit").value) || 0;
+  const currentHammer = num($("jewelHammer").value);
+  const goldSpot = num($("goldSpot").value);
+
+  const netG = isFinite(grossG) ? Math.max(0, grossG - lessG) : NaN;
+  const fineOzt = isFinite(netG) && isFinite(purity) ? gramsToTroyOz(netG) * purity : NaN;
+  const melt = isFinite(fineOzt) && isFinite(goldSpot) ? fineOzt * goldSpot : NaN;
+  const targetAllIn = isFinite(melt) ? (melt - desiredProfit) : NaN;
+  const maxHammer = isFinite(targetAllIn) ? hammerFromAllIn(targetAllIn) : NaN;
+
+  $("jewelNetG").textContent = isFinite(netG) ? fmt(netG) : "—";
+  $("jewelFineOzt").textContent = isFinite(fineOzt) ? fmt(fineOzt) : "—";
+  $("jewelMelt").textContent = isFinite(melt) ? `$${fmt(melt)}` : "—";
+  $("jewelMaxHammer").textContent = isFinite(maxHammer) ? `$${fmt(Math.max(0, maxHammer))}` : "—";
+
+  const hammerForDisplay = isFinite(currentHammer) ? currentHammer : maxHammer;
+  const allIn = isFinite(hammerForDisplay) ? allInFromHammer(hammerForDisplay) : NaN;
+  $("jewelAllIn").textContent = isFinite(allIn) ? `$${fmt(allIn)}` : "—";
+
+  if(isFinite(melt) && isFinite(allIn) && allIn > 0){
+    const profit = melt - allIn;
+    const marginPct = (profit / allIn) * 100;
+    $("jewelMargin").textContent = `${fmt(marginPct)}%`;
+    $("jewelMargin").className = "v " + (marginPct >= 0 ? "good" : "badc");
+
+    const pctMelt = (allIn / melt) * 100;
+    $("jewelPctMelt").textContent = `${fmt(pctMelt)}%`;
+    $("jewelPctMelt").className = "v " + (pctMelt <= 100 ? "good" : "badc");
+  } else {
+    $("jewelMargin").textContent = "—";
+    $("jewelMargin").className = "v";
+    $("jewelPctMelt").textContent = "—";
+    $("jewelPctMelt").className = "v";
+  }
+}
+
+function computeFlip(){
+  const comps = num($("flipComps").value);
+  const feePct = num($("flipFeePct").value) / 100 || 0;
+  const sellOther = num($("flipSellOther").value) || 0;
+  const desiredProfit = num($("flipProfit").value) || 0;
+  const currentHammer = num($("flipHammer").value);
+  const acquireOther = num($("flipAcquireOther").value) || 0;
+
+  const netSale = isFinite(comps) ? (comps - (comps * feePct) - sellOther) : NaN;
+  $("flipNetSale").textContent = isFinite(netSale) ? `$${fmt(netSale)}` : "—";
+
+  const targetAllIn = isFinite(netSale) ? (netSale - desiredProfit - acquireOther) : NaN;
+  const maxHammer = isFinite(targetAllIn) ? hammerFromAllIn(targetAllIn) : NaN;
+  $("flipMaxHammer").textContent = isFinite(maxHammer) ? `$${fmt(Math.max(0, maxHammer))}` : "—";
+
+  const hammerForDisplay = isFinite(currentHammer) ? currentHammer : maxHammer;
+  const allIn = isFinite(hammerForDisplay) ? (allInFromHammer(hammerForDisplay) + acquireOther) : NaN;
+  $("flipAllIn").textContent = isFinite(allIn) ? `$${fmt(allIn)}` : "—";
+
+  if(isFinite(netSale) && isFinite(allIn)){
+    const netProfit = netSale - allIn;
+    $("flipNetProfit").textContent = `${netProfit >= 0 ? "$" : "-$"}${fmt(Math.abs(netProfit))}`;
+    $("flipNetProfit").className = "v " + (netProfit >= 0 ? "good" : "badc");
+  } else {
+    $("flipNetProfit").textContent = "—";
+    $("flipNetProfit").className = "v";
+  }
+}
+
 function applyLotPreset(){
   const key = $("lotPreset").value;
   const p = PRESETS[key];
@@ -959,6 +1162,8 @@ function computeAll(){
   renderSpotText();
   computeLiveCalc();
   compute90Face();
+  computeJewelryLot();
+  computeFlip();
   renderLotTable();
   computeLot();
   renderQuickTable();
@@ -984,7 +1189,7 @@ $("use10Btn").addEventListener("click", ()=>applyDiscount(0.90, true));
 $("use20Btn").addEventListener("click", ()=>applyDiscount(0.80, true));
 $("refreshSpotBtn").addEventListener("click", refreshSpot);
 $("resetBtn").addEventListener("click", ()=>{
-  localStorage.removeItem("hammerbid_v5");
+  localStorage.removeItem("hammerbid_v6");
   location.reload();
 });
 $("addLotItemBtn").addEventListener("click", addLotItem);
