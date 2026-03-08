@@ -1,4 +1,4 @@
-const CACHE_NAME = "hammerbid-v6";
+const CACHE_NAME = "hammerbid-v7";
 const ASSETS = [
   "./",
   "./index.html",
