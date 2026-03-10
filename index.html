@@ -1190,9 +1190,41 @@ $("use100Btn").addEventListener("click", ()=>applyDiscount(1.0, true));
 $("use10Btn").addEventListener("click", ()=>applyDiscount(0.90, true));
 $("use20Btn").addEventListener("click", ()=>applyDiscount(0.80, true));
 $("refreshSpotBtn").addEventListener("click", refreshSpot);
-$("resetBtn").addEventListener("click", ()=>{
-  localStorage.removeItem("hammerbid_v6");
-  location.reload();
+$("resetBtn").addEventListener("click", () => {
+  localStorage.clear();
+
+  state.lot = [];
+  state.discount = 1.0;
+  if (state.face90SelectedPct !== undefined) state.face90SelectedPct = 1.0;
+
+  document.querySelectorAll("input").forEach(el => {
+    if (el.type !== "button" && el.type !== "submit") el.value = "";
+  });
+
+  document.querySelectorAll("select").forEach(el => {
+    if (el.id === "currency") {
+      el.value = "USD";
+    } else if (el.options.length > 0) {
+      el.selectedIndex = 0;
+    }
+  });
+
+  const lastSpot = $("lastSpot");
+  if (lastSpot) lastSpot.value = "";
+
+  const spotText = $("spotText");
+  if (spotText) spotText.textContent = "—";
+
+  const spotMeta = $("spotMeta");
+  if (spotMeta) spotMeta.textContent = "";
+
+  const spotAge = $("spotAge");
+  if (spotAge) spotAge.textContent = "";
+
+  if ($("lotTableBody")) $("lotTableBody").innerHTML = `<tr><td colspan="6" class="tiny">No lot items yet.</td></tr>`;
+
+  computeAll();
+  toast("Inputs cleared");
 });
 $("addLotItemBtn").addEventListener("click", addLotItem);
 $("clearLotBtn").addEventListener("click", ()=>{
@@ -1229,4 +1261,5 @@ setInterval(updateSpotAge, 60000);
 </script>
 </body>
 </html>
+
 
