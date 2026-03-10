@@ -1192,16 +1192,30 @@ $("use10Btn").addEventListener("click", ()=>applyDiscount(0.90, true));
 $("use20Btn").addEventListener("click", ()=>applyDiscount(0.80, true));
 $("refreshSpotBtn").addEventListener("click", refreshSpot);
 $("resetBtn").addEventListener("click", () => {
+
+  // Preserve current spot values
+  const keepGold = $("goldSpot") ? $("goldSpot").value : "";
+  const keepSilver = $("silverSpot") ? $("silverSpot").value : "";
+  const keepLastSpot = $("lastSpot") ? $("lastSpot").value : "";
+  const keepSpotText = $("spotText") ? $("spotText").textContent : "—";
+  const keepSpotMeta = $("spotMeta") ? $("spotMeta").textContent : "";
+  const keepSpotAge = $("spotAge") ? $("spotAge").textContent : "";
+
+  // Clear saved state
   localStorage.clear();
 
+  // Reset in-memory state
   state.lot = [];
   state.discount = 1.0;
   if (state.face90SelectedPct !== undefined) state.face90SelectedPct = 1.0;
 
+  // Clear inputs except spot fields
   document.querySelectorAll("input").forEach(el => {
+    if (["goldSpot","silverSpot","lastSpot"].includes(el.id)) return;
     if (el.type !== "button" && el.type !== "submit") el.value = "";
   });
 
+  // Reset dropdowns
   document.querySelectorAll("select").forEach(el => {
     if (el.id === "currency") {
       el.value = "USD";
@@ -1210,22 +1224,22 @@ $("resetBtn").addEventListener("click", () => {
     }
   });
 
-  const lastSpot = $("lastSpot");
-  if (lastSpot) lastSpot.value = "";
+  // Restore spot values
+  if ($("goldSpot")) $("goldSpot").value = keepGold;
+  if ($("silverSpot")) $("silverSpot").value = keepSilver;
+  if ($("lastSpot")) $("lastSpot").value = keepLastSpot;
+  if ($("spotText")) $("spotText").textContent = keepSpotText;
+  if ($("spotMeta")) $("spotMeta").textContent = keepSpotMeta;
+  if ($("spotAge")) $("spotAge").textContent = keepSpotAge;
 
-  const spotText = $("spotText");
-  if (spotText) spotText.textContent = "—";
-
-  const spotMeta = $("spotMeta");
-  if (spotMeta) spotMeta.textContent = "";
-
-  const spotAge = $("spotAge");
-  if (spotAge) spotAge.textContent = "";
-
-  if ($("lotTableBody")) $("lotTableBody").innerHTML = `<tr><td colspan="6" class="tiny">No lot items yet.</td></tr>`;
+  // Clear bullion lot table
+  if ($("lotTableBody")) {
+    $("lotTableBody").innerHTML =
+      `<tr><td colspan="6" class="tiny">No lot items yet.</td></tr>`;
+  }
 
   computeAll();
-  toast("Inputs cleared");
+  toast("Inputs cleared (spot preserved)");
 });
 $("addLotItemBtn").addEventListener("click", addLotItem);
 $("clearLotBtn").addEventListener("click", ()=>{
@@ -1262,6 +1276,7 @@ setInterval(updateSpotAge, 60000);
 </script>
 </body>
 </html>
+
 
 
 
